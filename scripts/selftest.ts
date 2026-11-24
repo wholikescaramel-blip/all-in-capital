@@ -99,6 +99,19 @@ assert.equal(db.states[acme], "AWAITING_REVIEW"); assert.ok(db.assessments[acme]
 assert.equal((await createFromFiles(db, [{ name: "Acme_Form.pdf", text: form }])).skipped.length, 1, "adding the same company twice is skipped");
 await assert.rejects(() => createFromName(db, "http://127.0.0.1/admin"), /public website/);
 
+// ---- backtest overlap check: never against itself (any alias) or the other memo companies ----
+{
+  const { conflictCheck } = await import("../src/lib/conflict");
+  const { nameKey } = await import("../src/lib/fundsite");
+  assert.equal(nameKey("The ePlane Company"), nameKey("ePlane"), "one company under two names is one key");
+  const d = emptyDB();
+  d.fund.portfolio = [{ name: "ePlane", description: "electric aircraft for short flights", source: "x" }, { name: "Unbox Robotics", description: "warehouse sorting robots", source: "x" }, { name: "Fleetx", description: "fleet management software", source: "x" }];
+  const t = { ...db.applications[acme], id: "eplane", company: "The ePlane Company", one_liner: "electric aircraft for short flights", deck_text: "electric aircraft and warehouse sorting robots for fleet management", is_backtest: true, conflict_exclude: ["The ePlane Company", "Unbox Robotics"] };
+  const flags = await conflictCheck(d, t as any);
+  assert.ok(!flags.some((f) => /eplane|unbox/i.test(f.portfolio_company)), "no self or peer overlap in a backtest");
+  assert.ok(flags.some((f) => /fleetx/i.test(f.portfolio_company)), "a real portfolio overlap is still flagged");
+}
+
 // ---- PDF text extraction (uses the case PDF if present) ----
 import fs from "node:fs";
 if (fs.existsSync("Case.pdf")) {

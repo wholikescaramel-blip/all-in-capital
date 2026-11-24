@@ -1,5 +1,29 @@
 {
-  "version": 1,
+  "version": 2,
+  "v1_result": {
+    "run_at": "2026-11-24",
+    "report": "reports/backtest-live-1795499312351.md",
+    "agreement": "2/12",
+    "verdict": "NOT YET",
+    "funded_total_scores": "0.8 to 3.0 (all six below the 5.0 floor)",
+    "note": "v1 stands as a failed run. It is kept and reported next to v2; it is not replaced."
+  },
+  "v2_changes": {
+    "thresholds_changed": false,
+    "rubric_changed": false,
+    "memos_and_labels_changed": false,
+    "bug_fixes": [
+      "A company was flagged as overlapping with itself when the portfolio listed it under a second name (ePlane vs The ePlane Company). Names are now matched ignoring 'company', 'technologies', 'labs' and similar endings, and a backtest never compares a company with itself.",
+      "A backtest compared each memo company with the other memo companies and with today's portfolio. The order in which the fund backed them is unknown, so the other 11 memo companies are now left out of each overlap check.",
+      "When web search was unavailable (quota), four scored criteria were each marked down for 'research failed'. An outage of our own tool is not a fact about the company, so it is now one separate note and no criterion is marked down for it."
+    ],
+    "unchanged_on_purpose": [
+      "The overlap check stays over-sensitive (false alarms preferred to misses).",
+      "Missing data still lowers scores, at the same rate.",
+      "A hold still counts as a disagreement."
+    ],
+    "known_limit": "Web search is still unavailable on the free key, and memo inputs are one or two paragraphs. Scores will still rest on very little information, so v2 may still fail. Reported either way."
+  },
   "purpose": "Pass/fail criteria for trusting the triage system, fixed BEFORE the first backtest run. Changing this file after registration makes the backtest refuse to run until re-registered (and the re-registration is logged).",
   "unit_of_agreement": "System recommendation compared with the fund's real decision: take_call <-> invested, pass <-> passed. A 'hold' is counted as a disagreement for the agreement rate (the system declined to make the case) and is reported separately.",
   "thresholds": {

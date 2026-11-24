@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Application, Assessment, DB } from "./schemas";
 import { completeJSON, hasLLM } from "./llm";
+import { nameKey } from "./fundsite";
 
 type Flag = Assessment["conflict_flags"][number];
 
@@ -16,7 +17,12 @@ function jaccard(a: Set<string>, b: Set<string>) {
 export async function conflictCheck(db: DB, app: Application): Promise<Flag[]> {
   const norm = (s: string) => s.toLowerCase().replace(/^the /, "").replace(/[^a-z0-9]/g, "");
   // In a backtest the company under test is itself in the portfolio list; never flag it against itself.
-  const portfolio = db.fund.portfolio.filter((p) => !(app.is_backtest && norm(p.name) === norm(app.company)));
+  // Backtest only. The company under test is never its own overlap (under any alias, e.g. "ePlane" and "The ePlane Company"),
+  // and the other memo companies are left out too: the order in which the fund backed them is unknown, so counting them
+  // against each other would compare a company with investments made after the decision being tested.
+  const same = (a: string, b: string) => { const x = nameKey(a), y = nameKey(b); return x === y || (x.length >= 4 && y.length >= 4 && (x.includes(y) || y.includes(x))); };
+  const skip = app.is_backtest ? [app.company, ...(app.conflict_exclude ?? [])] : [];
+  const portfolio = db.fund.portfolio.filter((p) => !skip.some((s) => same(p.name, s)));
   const flags: Flag[] = [];
   const appText = `${app.one_liner} ${app.form_fields["What have you built?"] ?? ""} ${app.deck_text.slice(0, 1200)}`;
 

@@ -110,6 +110,7 @@ export async function researchApplication(db: DB, app: Application): Promise<{ e
     { label: "competitors", criterion: "structure_capital", q: `Who are the main competitors of ${app.company} (${app.one_liner}) in India and how well funded are they?${cutoffNote}` },
     { label: "regulation", criterion: "regulatory_dependence", q: `What is the regulatory status/exposure for a business like ${app.company} (${app.one_liner}) in India (licences, RBI/SEBI/DGCA etc. as relevant)? Pending rule changes?${cutoffNote}` },
   ];
+  let searchDown = false;
   for (const q of queries) {
     try {
       const r = await webResearch(q.q, 4);
@@ -125,9 +126,12 @@ export async function researchApplication(db: DB, app: Application): Promise<{ e
         gaps.push({ id: uid("gap"), app_id: app.id, criterion: q.criterion, what_missing: `Partial: research on ${q.label} reported items it could not confirm.`, tried: [q.q], cost_to_score: "Some claims in this area remain unverified." });
       }
     } catch (e) {
+      if (e instanceof QuotaError) { searchDown = true; break; } // our search tool is down: that is not the company's fault, so no criterion is marked down for it
       gaps.push({ id: uid("gap"), app_id: app.id, criterion: q.criterion, what_missing: `Web research failed for ${q.label}: ${String(e).slice(0, 120)}`, tried: [q.q], cost_to_score: "Area unverified." });
     }
   }
+
+  if (searchDown) gaps.push({ id: uid("gap"), app_id: app.id, criterion: "research", what_missing: "Web search was not available, so founders, competitors and regulation were not looked up.", tried: ["Google search"], cost_to_score: "These scores rest on the application alone. Treat them as lower confidence." });
 
   // Extract verified claims from the deck+form. A quote must literally appear in the source text or the claim is dropped.
   try {

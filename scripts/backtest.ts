@@ -32,7 +32,7 @@ for (const m of memos) {
     founders: m.founders.map((n: string) => ({ name: n })), one_liner: m.what_it_does.split(". ")[0],
     deck_text: `${m.what_it_does}\n\n${m.facts.join("\n\n")}`, // decision, why-text and founder assessment are NOT included
     form_fields: { "Company name": m.company, "Sector (as selected)": m.sector_selected, "Stage (as selected)": m.stage, "One-line description": m.what_it_does.split(". ")[0] },
-    applied_at: new Date().toISOString(), is_backtest: true, research_cutoff: m.cutoff ?? undefined,
+    applied_at: new Date().toISOString(), is_backtest: true, research_cutoff: m.cutoff ?? undefined, conflict_exclude: memos.map((x: { company: string }) => x.company),
   });
   const a = await processApplication(db, app);
   const agree = (a.recommendation === "take_call" && m.outcome === "invested") || (a.recommendation === "pass" && m.outcome === "passed");

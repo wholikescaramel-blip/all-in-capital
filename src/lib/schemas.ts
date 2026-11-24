@@ -19,6 +19,7 @@ export const Application = z.object({
   research_cutoff: z.string().optional(), // ISO date; evidence after this is blocked in backtests
   website: z.string().optional(),
   contact_email: z.string().optional(), // only when the applicant gave one; never guessed
+  conflict_exclude: z.array(z.string()).optional(), // backtest only: portfolio names not to compare against
   kind: z.enum(["pair", "domain", "manual"]).default("pair"), // pair = deck+form, domain = name/website entry, manual = pasted text
 });
 export type Application = z.infer<typeof Application>;

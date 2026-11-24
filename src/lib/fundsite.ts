@@ -20,7 +20,7 @@ export type FundSite = {
 const NOT_NAMES = /^(home|about|about us|contact|contact us|portfolio|companies|team|blog|news|careers|jobs|apply|apply here|apply now|login|sign in|read more|learn more|view all|view website|visit website|website|menu|twitter|linkedin|instagram|facebook|medium|youtube|logo|image|arrow|allstars|all in|all in capital|founder stories|founders|privacy|terms)$/i;
 
 // Same company written two ways ("Super K" / "SuperK", "Spiti" / "Spiti.xyz", "GIVA" / "Giva").
-export const nameKey = (s: string) => s.toLowerCase().replace(/\.(xyz|ai|io|com|in|co)$/, "").replace(/^the /,"").replace(/[^a-z0-9]/g,"");
+export const nameKey = (s: string) => s.toLowerCase().replace(/\.(xyz|ai|io|com|in|co)$/, "").replace(/^the /,"").replace(/[^a-z0-9]/g,"").replace(/(company|technologies|labs|pvt|ltd|inc)$/,"");
 
 export async function scrapeFundSite(urls: string[] = PROCESS.fund_public_urls): Promise<FundSite> {
   const gaps: string[] = [];
