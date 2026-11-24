@@ -1,0 +1,83 @@
+ALL IN CAPITAL | INBOUND APPLICATION Application Form Response
+
+Submitted through the fund's public application form. Responses are reproduced as the applicant wrote them.
+
+Company
+
+Company name Pumpwise (Pumpwise Technologies Pvt. Ltd.)
+
+Website www.pumpwise.example
+
+Location Pune, Maharashtra
+
+Incorporated October 2025
+
+One-line description Plug-on vibration and heat sensors with anomaly alerts for motors and
+
+pumps in small factories.
+
+Sector (as selected) Deeptech
+
+Stage (as selected) Pre-seed
+
+Team size 7 (2 founders, 3 engineers, 2 field staff)
+
+Founders
+
+Founder 1 Karthik Subramanian, CEO. IIT Madras, mechanical engineering. 5 years
+
+as a reliability engineer at an engine maker. linkedin.com/in/karthik- subramanian-example
+
+Founder 2 Neeraj Pillai, CTO. 4 years in embedded systems at an auto-components
+
+supplier. Designed the sensor board and firmware. linkedin.com/in/neeraj-pillai-example
+
+Time commitment Both full-time since October 2025.
+
+Prior startup experience None for either founder.
+
+Equity split Founders 80%, angels 12%, ESOP 8%.
+
+Product and traction
+
+What have you built? A clip-on sensor measuring vibration and temperature, a gateway, and a
+
+model that learns each motor's normal pattern in 14 days. Alerts go to WhatsApp.
+
+Customers 11 pilots started since March 2026. 6 converted to paid, across 140
+
+sensors (average 23 per customer).
+
+Revenue INR 14.2 L cumulative, of which hardware INR 13.3 L. Monthly recurring
+
+subscription INR 1.05 L.
+
+Customer acquisition 3 of 6 paid customers came through a cluster association, 2 through a
+
+pump distributor, 1 direct. Cost per paid customer is about INR 73,000 (11 pilots at INR 4.4 L / 6). This excludes founder time.
+
+Evidence of value Customers report 9 unplanned stoppages caught early during pilots,
+
+estimated by them at INR 1.8 L average downtime cost each. These figures are customer-reported, not audited.
+
+Key risks Sensor accuracy across motor types, hardware supply, and longer sales
+
+cycles in larger plants.
+
+Fundraising
+
+Amount raising INR 2.2 Cr
+
+Valuation expectation INR 11 Cr post-money
+
+Existing investors INR 30 L: a INR 10 L incubator grant and two angels (INR 20 L).
+
+Use of funds Team, sensor inventory and pilots, certification and operations.
+
+Other investors in conversation Two pre-seed funds.
+
+How did you hear about us? Public application form. Our incubator mentor also suggested we apply.
+
+Anything else we should know?
+
+We would value a conversation about manufacturing scale-up and calibration. Happy to share pilot data.

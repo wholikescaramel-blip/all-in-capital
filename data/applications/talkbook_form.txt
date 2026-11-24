@@ -1,0 +1,81 @@
+ALL IN CAPITAL | INBOUND APPLICATION Application Form Response
+
+Submitted through the fund's public application form. Responses are reproduced as the applicant wrote them.
+
+Company
+
+Company name Talkbook (Talkbook AI Pvt. Ltd.)
+
+Website www.talkbook.example
+
+Location Chennai, Tamil Nadu
+
+Incorporated February 2026
+
+One-line description AI call summaries and automatic CRM updates for Indian sales teams,
+
+including code-mixed languages.
+
+Sector (as selected) Consumer tech
+
+Stage (as selected) Pre-seed
+
+Team size 8
+
+Founders
+
+Founder 1 Arun Kumar, CEO. 6 years as a product lead at a CRM software company.
+
+linkedin.com/in/arun-kumar-example
+
+Founder 2 Meenakshi S, CTO. 4 years in speech ML at a speech-technology
+
+company. linkedin.com/in/meenakshi-s-example
+
+Time commitment Both full-time since March 2026.
+
+Prior startup experience None.
+
+Equity split Founders 95%, ESOP 5%.
+
+Product and traction
+
+What have you built? A call-recording and transcription layer for sales teams, with summaries and CRM field updates. Handles Hindi-English, Tamil-English and Telugu- English calls.
+
+Customers 16 paying teams, 340 paid seats.
+
+Revenue MRR INR 1.9 L (INR 500 per seat per month).
+
+Unit economics CAC about INR 48,000 per team, including founder time at a nominal
+
+salary. Gross margin 70%. Payback about 5 months.
+
+Customer acquisition Founder-led outbound brought 9 teams, referrals 5 and CRM
+
+consultants 2.
+
+Competition Gong and similar global tools, and meeting note-takers like Otter and
+
+Fireflies. We do not know of an India-first player.
+
+Key risks Telecom call-recording restrictions, accuracy on noisy calls, and
+
+customer concentration in BFSI.
+
+Fundraising
+
+Amount raising INR 2 Cr
+
+Valuation expectation INR 12 Cr post-money
+
+Existing investors None.
+
+Use of funds Engineering and language models, sales, security and operations.
+
+Other investors in conversation One pre-seed fund.
+
+How did you hear about us? Public application form.
+
+Anything else we should know?
+
+We would value introductions to sales leaders at Indian BFSI and edtech companies.

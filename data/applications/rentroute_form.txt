@@ -1,0 +1,75 @@
+ALL IN CAPITAL | INBOUND APPLICATION Application Form Response
+
+Submitted through the fund's public application form. Responses are reproduced as the applicant wrote them.
+
+Company
+
+Company name RentRoute (RentRoute Technologies Pvt. Ltd.)
+
+Website www.rentroute.example
+
+Location Bengaluru, Karnataka
+
+Incorporated May 2026
+
+One-line description App to pay rent by credit card.
+
+Sector (as selected) Fintech
+
+Stage (as selected) Pre-seed
+
+Team size 4 (2 founders, 2 contract developers)
+
+Founders
+
+Founder 1 Sameer Qureshi, CEO. Product manager at a fintech for 4 years;
+
+launched two payments features. linkedin.com/in/sameer-qureshi- example
+
+Founder 2 Divya Menon, Growth. 5 years in consumer marketing.
+
+linkedin.com/in/divya-menon-example
+
+Time commitment Sameer full-time since June 2026. Divya full-time since August 2026.
+
+Prior startup experience None.
+
+Equity split Founders 100%.
+
+Product and traction
+
+What have you built? A mobile app that lets users pay rent by credit card. We pay the landlord's bank account through a payment aggregator partner.
+
+Users 1,900 registered. 1,100 have paid at least once.
+
+Rent volume INR 6.1 Cr paid since July 2026 across 2,400 payments.
+
+Revenue Users pay a 1.8% fee: INR 11 L gross. After the 0.9% we pay the
+
+payment partner, net revenue is INR 5.5 L.
+
+Customer acquisition Mostly organic and word of mouth. In small paid tests we saw about
+
+INR 120 per registered user. We have not measured cost per paying user.
+
+Dependencies We rely on a single payment aggregator partner. Banks and card
+
+networks have changed rules on rent payments before, and a change would hit us directly.
+
+Fundraising
+
+Amount raising INR 1.8 Cr
+
+Valuation expectation INR 12 Cr post-money
+
+Existing investors None. Founders have put in INR 18 L of savings.
+
+Use of funds Marketing, engineering, operations.
+
+Other investors in conversation None.
+
+How did you hear about us? Public application form.
+
+Anything else we should know?
+
+We believe rent is a large, underserved payment category.

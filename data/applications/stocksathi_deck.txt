@@ -1,0 +1,175 @@
+Application\_01\_StockSathi\_Deck.pptx
+
+StockSathi
+
+Restocking and credit for India's small-town kirana stores
+
+Pre-seed deck | Raising INR 2 Cr | Hyderabad
+
+Kirana owners restock the hard way
+
+3 trips a week
+
+Owners travel to the nearest wholesale market, losing half a day each time.
+
+StockSathi 2
+
+No credit
+
+Banks do not lend against stock. Informal suppliers charge 3 to 4% a month.
+
+No price view
+
+Prices vary by distributor and by day. Owners rarely know if they overpay.
+
+Based on 60 owner interviews in Karimnagar and Warangal, June to July 2026.
+
+Why now
+
+UPI everywhere
+
+Almost every store takes UPI. That gives a payment trail we can use to judge credit.
+
+StockSathi 3
+
+Quick commerce
+
+Quick-commerce apps are pulling customers from small stores. Owners now need better prices and stock.
+
+Phones and voice
+
+Cheap smartphones and local-language voice input let owners order without typing.
+
+Order, get delivered, pay later
+
+1
+
+Order
+
+Owner picks items in a simple vernacular app
+
+StockSathi 4
+
+2
+
+Deliver
+
+Next-morning delivery from partner distributors
+
+3
+
+Pay later
+
+7 to 14 days credit on repeat orders
+
+Traction: 38 retailers, 4 months in
+
+StockSathi 5
+
+38
+
+retailers onboarded 22 of 38
+
+have ordered more than once INR 3.8 L
+
+GMV in October
+
+Market size: how we got there
+
+TAM INR 17 lakh Cr 12M kirana stores x INR 1.2 L monthly purchases x 12
+
+SAM INR 64,800 Cr \~450K stores in Tier 3 to 5 towns of Telangana and AP x INR
+
+1.2 L x 12
+
+SOM INR 518 Cr In 3 years: 2% of SAM stores (9,000) x 40% of their purchases
+
+(INR 48K a month) x 12
+
+Assumptions: INR 1.2 L monthly purchases per store from our 60 owner interviews. Store counts are our estimates.
+
+StockSathi 6
+
+Go-to-market and acquisition cost
+
+Field agents
+
+INR 2,860
+
+CAC = INR 40,000 field cost / 14 stores onboarded in October. Small sample,
+
+24 of 38 stores
+
+blended CAC, October
+
+one town.
+
+Neighbour
+
+INR 520 referrals 9 of 38 stores
+
+monthly margin per active store
+
+Next: test agent-free onboarding via distributor reps to bring CAC down.
+
+Distributor
+
+\~5.5 months intros
+
+payback on trade margin alone 5 of 38 stores
+
+StockSathi 7
+
+We earn on every order, and on credit
+
+Trade margin
+
+About 4% margin from distributors on every order delivered.
+
+StockSathi 8
+
+Credit fee
+
+1.5% fee on credit orders. Pilot with 12 retailers, funded from our own capital for now.
+
+Credit is about a third of October GMV. NBFC partnership in discussion.
+
+How we are different
+
+StockSathi B2B marketplaces Wholesale markets
+
+Small-town focus Yes Mostly metro Yes
+
+Vernacular app Yes Partial No
+
+Credit on orders Pilot Limited Informal
+
+Next-day delivery Yes Yes No
+
+StockSathi 9
+
+The team
+
+Aarav Deshmukh, CEO
+
+8 years in FMCG distribution and field operations. Ran a regional sales team at a large distributor.
+
+StockSathi 10
+
+Pooja Nair, CTO
+
+5 years as a software engineer at a payments company. Built the ordering app and credit rules.
+
+Both full-time since April 2026. Two field agents on the team.
+
+The ask: INR 2 Cr for 300 stores
+
+40%
+
+Credit book StockSathi 11
+
+35% Team and tech 25%
+
+Expansion to 2 new towns
+
+In 12 months: 300 live stores, INR 40 L monthly GMV, CAC under INR 2,000.

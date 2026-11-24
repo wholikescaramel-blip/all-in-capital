@@ -1,0 +1,77 @@
+ALL IN CAPITAL | INBOUND APPLICATION Application Form Response
+
+Submitted through the fund's public application form. Responses are reproduced as the applicant wrote them.
+
+Company
+
+Company name CAPilot (CAPilot Labs Pvt. Ltd.)
+
+Website www.capilot.example
+
+Location Ahmedabad, Gujarat
+
+Incorporated December 2025
+
+One-line description AI assistant for CA firms to reconcile GST data and draft notice replies.
+
+Sector (as selected) Fintech
+
+Stage (as selected) Pre-seed
+
+Team size 6
+
+Founders
+
+Founder 1 Dhruv Shah, CEO. Qualified Chartered Accountant, 4 years in practice
+
+handling GST for about 60 clients. linkedin.com/in/dhruv-shah-example
+
+Founder 2 Isha Merchant, CTO. 3 years at a SaaS company. Built the matching
+
+engine. linkedin.com/in/isha-merchant-example
+
+Time commitment Both full-time since February 2026.
+
+Prior startup experience None.
+
+Equity split Founders 90%, one angel 10%.
+
+Product and traction
+
+What have you built? A web app where CA firms upload books and GST portal data. It
+
+matches invoices, flags mismatches and drafts notice replies for the CA to review.
+
+Customers 24 paying CA firms, 7 on free trial. 2 firms have churned.
+
+Revenue Monthly recurring revenue INR 78,000 (INR 9.4 L annualised).
+
+Customer acquisition Mostly the founders' network and referrals from other CAs. We have
+
+not measured acquisition cost yet.
+
+Accuracy and liability Every drafted reply is reviewed by the CA before filing. Responsibility
+
+sits with the CA.
+
+Key risks Model errors on unusual notices and dependence on GST portal data
+
+formats.
+
+Fundraising
+
+Amount raising INR 1.5 Cr
+
+Valuation expectation INR 10 Cr post-money
+
+Existing investors One angel, INR 15 L.
+
+Use of funds Engineering and AI, sales, compliance and security.
+
+Other investors in conversation None yet.
+
+How did you hear about us? Public application form.
+
+Anything else we should know?
+
+We believe CA firms are underserved by existing tools. We would welcome a call.

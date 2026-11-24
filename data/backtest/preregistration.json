@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "purpose": "Pass/fail criteria for trusting the triage system, fixed BEFORE the first backtest run. Changing this file after registration makes the backtest refuse to run until re-registered (and the re-registration is logged).",
+  "unit_of_agreement": "System recommendation compared with the fund's real decision: take_call <-> invested, pass <-> passed. A 'hold' is counted as a disagreement for the agreement rate (the system declined to make the case) and is reported separately.",
+  "thresholds": {
+    "agreement_min_of_12": 9,
+    "funded_min_total_score": 5.0,
+    "max_funded_recommended_pass": 0,
+    "max_passed_recommended_take_call": 2,
+    "per_criterion_hit_rate_min": 0.6
+  },
+  "criterion_hit_definition": "For each labelled criterion on each memo (data/backtest/memos.json 'expected'): 'high' hits when score >= 6, 'low' hits when score <= 5, 'mid' hits when 4 <= score <= 7.",
+  "verdict_rule": "TRUST (for advisory use only) if every threshold is met. Otherwise NOT YET: the failing metric names what to fix. Missing data and the candour criterion are excluded from nothing: they are scored as designed.",
+  "disagreement_labels": ["system_wrong", "fund_wrong", "ambiguous"],
+  "labelling_rule": "Each disagreement gets a one-paragraph judgement citing the memo's reason text. Labelling happens AFTER the run, by a human, and is not used to tune thresholds.",
+  "caveats_to_state": [
+    "n=12 is small: one flip moves agreement by 8 points.",
+    "Memo inputs are richer than real applications; the 'what it does' text was written by the fund after meeting the company.",
+    "Rubric v0 was drafted from these same memos, so the backtest is in-sample for the rubric. Scoring prompts withhold the memo-derived seed_evidence to limit this.",
+    "Research cut-off dates are assumptions (decision dates are not in the pack) and web search cannot be fully date-blocked; outcome-like snippets are flagged and excluded.",
+    "Prepnest, and the other uneasy passes, are the interesting disagreements; the fund itself is unsure about them."
+  ]
+}

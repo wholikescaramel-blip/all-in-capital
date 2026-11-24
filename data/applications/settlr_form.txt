@@ -1,0 +1,75 @@
+ALL IN CAPITAL | INBOUND APPLICATION Application Form Response
+
+Submitted through the fund's public application form. Responses are reproduced as the applicant wrote them.
+
+Company
+
+Company name Settlr (Settlr Fintech Pvt. Ltd.)
+
+Website www.settlr.example
+
+Location Mumbai, Maharashtra
+
+Incorporated April 2023
+
+One-line description Payments and invoice financing for Indian SMEs.
+
+Sector (as selected) Fintech
+
+Stage (as selected) Series A
+
+Team size 31
+
+Founders
+
+Founder 1 Rahul Mehta, CEO. 10 years in transaction banking; led SME product at
+
+a private bank. linkedin.com/in/rahul-mehta-example
+
+Founder 2 Sonal Iyer, CTO. 8 years in payments engineering at a large fintech.
+
+linkedin.com/in/sonal-iyer-example
+
+Time commitment Both full-time since 2023.
+
+Prior startup experience None.
+
+Equity split Founders 58%, seed investors 30%, ESOP 12%.
+
+Product and traction
+
+What have you built? A payments platform for SMEs with payment links, collections reconciliation and invoice financing funded by NBFC partners.
+
+Customers 1,150 SMEs.
+
+Volume and revenue INR 86 Cr payment volume in October 2026. Net revenue INR 78 L.
+
+Unit economics CAC INR 14,500 per SME, payback 7 months, gross margin 58%, net
+
+revenue retention 112%.
+
+Customer acquisition CA and accountant partners 40%, direct sales 35%, inbound and
+
+referrals 25%.
+
+Key risks Credit losses on financed invoices, dependence on NBFC partners,
+
+regulation of digital lending.
+
+Fundraising
+
+Amount raising INR 30 Cr
+
+Valuation expectation INR 180 Cr post-money
+
+Existing investors INR 9 Cr seed round in 2024, led by two institutional funds.
+
+Use of funds Financing book, sales and distribution, product, risk and compliance.
+
+Other investors in conversation Four Series A funds.
+
+How did you hear about us? Public application form.
+
+Anything else we should know?
+
+We are looking for a lead investor for our Series A.

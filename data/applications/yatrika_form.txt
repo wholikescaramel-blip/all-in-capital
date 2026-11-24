@@ -1,0 +1,75 @@
+ALL IN CAPITAL | INBOUND APPLICATION Application Form Response
+
+Submitted through the fund's public application form. Responses are reproduced as the applicant wrote them.
+
+Company
+
+Company name Yatrika (Yatrika Travel Pvt. Ltd.)
+
+Website www.yatrika.example
+
+Location Jaipur, Rajasthan
+
+Incorporated March 2026
+
+One-line description AI-planned family trips with local guides, taxis and stays.
+
+Sector (as selected) Consumer tech
+
+Stage (as selected) Pre-seed
+
+Team size 4
+
+Founders
+
+Founder 1 Manish Joshi. 10 years running his family's travel agency in Jaipur, which
+
+has served over 3,000 families. linkedin.com/in/manish-joshi-example
+
+Founder 2 Kavya Nair. 3 years as a web developer. linkedin.com/in/kavya-nair-
+
+example
+
+Time commitment Both full-time since March 2026.
+
+Prior startup experience Manish has run a family business. Kavya has none.
+
+Equity split Founders 100%.
+
+Product and traction
+
+What have you built? A web app where families answer 6 questions and receive an AI-drafted
+
+itinerary. The itinerary uses a language model and 40 hand-built route templates. Bookings are confirmed manually on WhatsApp.
+
+Customers 410 bookings since launch, covering about 1,300 travellers.
+
+Revenue Total booking value INR 38.6 L. We earn a 12% commission, so revenue
+
+is INR 4.6 L.
+
+Repeat 14% of families have booked a second trip.
+
+Customer acquisition Referrals from Manish's earlier agency customers and Instagram. Paid acquisition is about INR 640 per booking.
+
+Key risks Quality of local partners, seasonality and manual operations that do not
+
+yet scale.
+
+Fundraising
+
+Amount raising INR 1.2 Cr
+
+Valuation expectation INR 8 Cr post-money
+
+Existing investors None.
+
+Use of funds Marketing, technology, hiring, expansion.
+
+Other investors in conversation None.
+
+How did you hear about us? Public application form.
+
+Anything else we should know?
+
+We are passionate about travel and would love to tell you more on a call.

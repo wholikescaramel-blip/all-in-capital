@@ -1,0 +1,95 @@
+MESA MBA C4 | TERM 2 | CASE 3 | INBOUND APPLICATION 1 OF 10 All In Capital — Application Form Response
+
+Submitted through the fund's public application form. Responses are reproduced as the applicant wrote them. Pair with the applicant's deck (Application\_01\_StockSathi\_Deck.pptx).
+
+Company
+
+Company name StockSathi (StockSathi Technologies Pvt. Ltd.)
+
+Website www.stocksathi.example
+
+Location Hyderabad, Telangana
+
+Incorporated March 2026
+
+One-line description B2B restocking app with short-term credit for small-town kirana stores.
+
+Sector (as selected) Consumer tech
+
+Stage (as selected) Pre-seed
+
+Team size 4 (2 founders, 2 field agents)
+
+Founders
+
+Founder 1 Aarav Deshmukh, CEO
+
+LinkedIn: linkedin.com/in/aarav-deshmukh-example Background: FMCG distribution and field operations, 8 years. Ran a regional sales team at a large distributor.
+
+Founder 2 Pooja Nair, CTO
+
+LinkedIn: linkedin.com/in/pooja-nair-example Background: Software engineer at a payments company, 5 years. Built the ordering app and our credit-scoring rules.
+
+Time commitment Both full-time since April 2026.
+
+Prior startup experience None for either founder.
+
+Equity split Founders 85%, angels 15%. ESOP pool to be created.
+
+Product and traction
+
+What have you built? A vernacular Android app for store owners to order from partner distributors,
+
+with next-morning delivery and 7 to 14 days credit for repeat customers. Live in Karimnagar only.
+
+Active customers 42 retailers onboarded, 22 of whom have ordered more than once.
+
+Revenue / GMV GMV of about INR 9 lakh in the last three months. Revenue is trade margin of
+
+about 4% plus a credit fee on credit orders.
+
+Growth GMV has grown every month since the July launch.
+
+Repeat behaviour Repeat customers reorder about once a week.
+
+Customer acquisition Two field agents visit stores and onboard them. Word of mouth between
+
+neighbouring stores has helped. Our CAC is under INR 2,000 per store.
+
+Unit economics Positive contribution on delivered orders once a store has ordered twice.
+
+Credit
+
+How is credit funded? Credit is provided through our NBFC partner. We take the first-loss risk.
+
+Credit book size About INR 85,000 outstanding across 12 retailers.
+
+Defaults to date None so far. We follow up personally on late payments.
+
+Regulatory status Not registered as an NBFC.
+
+Competition and differentiation
+
+Who else is doing this? Large B2B marketplaces and local wholesale markets.
+
+Why will you win? We focus only on small towns and speak the owner's language, literally and in
+
+how we assess credit.
+
+Fundraising
+
+Amount raising INR 2 Cr
+
+Valuation expectation INR 12 Cr post-money
+
+Existing investors Three angels from the FMCG and logistics industry, INR 25 lakh in total.
+
+Use of funds Credit book, hiring, expansion to two more towns.
+
+Other investors in conversation One pre-seed fund. No term sheet yet.
+
+How did you hear about us? Introduction through a founder in your Fund I portfolio.
+
+Anything else we should know?
+
+We have been told our credit-scoring approach is an edge. Happy to walk you through it on a call. We would also welcome your help with introductions to NBFCs.

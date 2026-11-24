@@ -1,0 +1,18 @@
+node_modules
+.next
+*.tsbuildinfo
+
+# secrets and local state
+.env*
+!.env.example
+data/db.json
+data/scrape-cache.json
+
+# logs and generated output
+*.log
+.*.log
+reports/
+
+# the case brief is course material, not needed to run the app
+Case.pdf
+data/outbox.jsonl
