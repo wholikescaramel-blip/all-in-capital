@@ -73,3 +73,12 @@ a.tab.on { color: var(--fg); background: color-mix(in srgb, var(--accent) 12%, t
 .bub.ai { justify-self: start; background: color-mix(in srgb, var(--panel-solid) 60%, transparent); backdrop-filter: blur(8px); border-bottom-left-radius: 5px; }
 .chatbox { display: flex; gap: 8px; } .chatbox input { flex: 1; }
 .mono { font-variant-numeric: tabular-nums; }
+
+/* live status summary under the page heading: a translucent glass box */
+.status { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; margin-top: 16px; padding: 11px 20px; border-radius: 18px; border: 1px solid var(--line-strong);
+  background: color-mix(in srgb, var(--panel-solid) 50%, transparent); backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 10px 30px -16px rgba(0,0,0,.6); font-size: 15px; color: var(--muted); }
+.status b { font-family: var(--serif); font-size: 1.5rem; font-weight: 400; margin-right: 6px; color: var(--fg); letter-spacing: -.02em; }
+.status .sep { opacity: .35; }
+.status .hl b { color: var(--accent-2); } .status .good b { color: var(--accent); } .status .warn b { color: var(--amber); }
+.sec-commerce_infrastructure { --c: #5fd0c8; }

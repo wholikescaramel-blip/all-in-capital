@@ -61,7 +61,7 @@ export async function scrapeFundSite(urls: string[] = PROCESS.fund_public_urls):
         portfolio = r.companies.filter((c) => snippetInText(c.name, hay)).map((c) => ({ name: c.name.trim(), description: c.description, source: pf.url }));
         const dropped = r.companies.length - portfolio.length;
         if (dropped) gaps.push(`${dropped} extracted portfolio name(s) dropped because they were not found in the page text.`);
-      } catch (e) { gaps.push(`Portfolio extraction by model failed (${String(e).slice(0, 100)}); fell back to link/alt text.`); }
+      } catch { /* the link-and-logo fallback below adds the plain note */ }
     }
     if (!portfolio.length) {
       // Offline / fallback: short capitalised link texts and logo alts on the portfolio page. Low confidence; flagged as such.

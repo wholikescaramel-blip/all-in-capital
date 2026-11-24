@@ -13,7 +13,7 @@ const clamp = (n: number, lo = 0, hi = 10) => Math.max(lo, Math.min(hi, n));
 // Models drift on types (numbers for strings, bare strings for objects, "High" for "high"). Accept the sensible variants and
 // normalise them, so one stray type does not discard a whole scoring call. Content rules (ids must exist, etc.) are enforced later.
 const S = z.coerce.string();
-const NOTE = "Not stated by the scorer.";
+const NOTE = "No reason given.";
 const Missing = z.union([
   z.string().transform((what) => ({ what, cost_to_score: NOTE })),
   z.object({ what: S, cost_to_score: S.optional() }).transform((m) => ({ what: m.what, cost_to_score: m.cost_to_score ?? NOTE })),

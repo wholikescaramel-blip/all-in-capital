@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { loadDB } from "@/lib/store";
 import { CRITERIA } from "@/config/rubric";
-import { BASIS_LABEL, cleanBullet, cleanFit, keyFacts, nice, REC_LABEL, scoredBy } from "@/lib/plain";
+import { BASIS_LABEL, cleanBullet, cleanFit, cleanGap, keyFacts, nice, REC_LABEL, scoredBy } from "@/lib/plain";
 import { pickContact } from "@/lib/emailflow";
 import { OutreachPanel, ReviewForm } from "../../Forms";
 import { Bar, Pill, Pipeline, ScoreRing } from "../../ui";
@@ -50,7 +50,7 @@ export default async function AppPage({ params }: { params: Promise<{ id: string
               {s.evidence_ids.map((eid) => { const e = ev.get(eid); return e && <blockquote key={eid}>{e.claim}<br /><span style={{ opacity: .75 }}>{e.source_type === "form" ? "Application form" : e.source_type === "deck" ? "Deck" : e.source_type === "scrape" ? "Company website" : "Web"}</span></blockquote>; })}
               {s.evidence_ids.length === 0 && <p className="muted">Nothing.</p>}
               <span className="lab">What we couldn&apos;t find</span>
-              {s.gap_ids.map((gid) => { const g = gaps.get(gid); return g && <blockquote key={gid} className="bad">{g.what_missing}<br /><span style={{ opacity: .8 }}>{g.cost_to_score}</span></blockquote>; })}
+              {s.gap_ids.map((gid) => { const g = gaps.get(gid); return g && <blockquote key={gid} className="bad">{cleanGap(g.what_missing)}<br /><span style={{ opacity: .8 }}>{cleanGap(g.cost_to_score)}</span></blockquote>; })}
               {s.gap_ids.length === 0 && <p className="muted">Nothing missing.</p>}
             </div>
           </details>

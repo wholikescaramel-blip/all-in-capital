@@ -2,13 +2,18 @@ import type { Application, Assessment } from "./schemas";
 
 // Display helpers: keep wording short and plain, and keep implementation detail out of the reasoning text.
 export const SECTOR_LABEL: Record<string, string> = {
-  fintech: "Fintech", deeptech: "Deeptech", consumer_tech: "Consumer tech", consumer_brand: "Consumer brand", other: "Other",
+  fintech: "Fintech", deeptech: "Deeptech", consumer_tech: "Consumer tech", consumer_brand: "Consumer brand", commerce_infrastructure: "Commerce infrastructure", other: "Other",
 };
 export const nice = (s: string) => s.replace(/_/g, " ").toLowerCase();
 
 // Older stored assessments have a model note glued onto the reason. Strip it from the text; show the model quietly elsewhere.
 export const cleanReason = (s: string) => s.replace(/\s*\[Scored by fallback model[^\]]*\]\s*/g, " ").replace(/\s+/g, " ").trim();
 export const scoredBy = (a: Assessment) => a.scored_by ?? a.basis_reason.match(/fallback model ([\w.-]+?):/)?.[1];
+
+// Gaps stored before the wording change keep the old text; show the plain version.
+export const cleanGap = (s: string) =>
+  s.replace("Behaviour under live questioning is not observable from a deck or form. Needs the call. Marked unavailable, scored conservatively.", "Can't tell from a deck. This one needs the call.")
+    .replace("Not stated by the scorer.", "No reason given.");
 
 // Older stored bullets use the earlier wording; show the plain version everywhere.
 export const cleanBullet = (s: string) =>

@@ -38,7 +38,7 @@ export const CRITERIA: Criterion[] = [
     question: "Does the founder volunteer weaknesses and engage when pushed on weak spots, or get defensive? Defensiveness is signal.",
     seed_evidence: "Prepnest (bristled at copy-risk question), Unbox (described failures before asked).",
     low_evidence_from_deck: true,
-    always_gap: "Behaviour under live questioning is not observable from a deck or form. Needs the call. Marked unavailable, scored conservatively.",
+    always_gap: "Can't tell from a deck. This one needs the call.",
   },
   {
     key: "customer_traction", group: "path", label: "Customer and traction evidence", weight: 1,
@@ -78,5 +78,6 @@ export const SECTOR_KEYWORDS: Record<string, string[]> = {
   deeptech: ["deeptech", "deep tech", "drone", "robot", "evtol", "aerospace", "hardware", "semiconductor"],
   fintech: ["fintech", "credit", "lending", "payments", "bond", "insurance", "wealth", "tax", "ca ", "accounting", "invest"],
   consumer_brand: ["d2c", "brand", "skincare", "jewellery", "snacks", "apparel"],
-  consumer_tech: ["consumer", "app", "marketplace", "retail", "edtech", "travel", "rent"],
+  consumer_tech: ["consumer", "app", "marketplace", "edtech", "travel", "rent"],
+  commerce_infrastructure: ["commerce infrastructure", "kirana", "small-town", "distributor", "wholesale", "retail network", "supply and billing"],
 };

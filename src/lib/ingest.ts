@@ -41,6 +41,7 @@ export function normaliseSector(selected: string, oneLiner: string, deck: string
   const s = selected.toLowerCase();
   if (/deep/.test(s)) return "deeptech";
   if (/fintech/.test(s)) return "fintech";
+  if (/commerce/.test(s)) return "commerce_infrastructure";
   if (/brand/.test(s)) return "consumer_brand";
   if (/consumer/.test(s)) return "consumer_tech";
   const hay = (oneLiner + " " + deck).toLowerCase();

@@ -9,7 +9,6 @@ export default function Root({ children }: { children: React.ReactNode }) {
       <header className="top">
         <a href="/" className="brand"><i />All In Capital</a>
         <Nav />
-        <span className="note"><span className="dot" />Advisory only. A reviewer decides.</span>
       </header>
       <main>{children}</main>
     </body></html>

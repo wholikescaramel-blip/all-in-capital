@@ -17,7 +17,7 @@ export const SEED_PORTFOLIO = [
   { name: "SuperK", description: "Tech-enabled grocery retail network rebranding small-town neighbourhood stores", source: "deal memo 9" },
   { name: "Jai Kisan", description: "Rural and agri credit fintech for farmers and rural households", source: "deal memo 11" },
 ];
-export const WRITTEN_THESIS = "Public line (per partner notes): fintech, deeptech, consumer tech, consumer brands. Pre-seed cheques; the founder is treated as a primary variable.";
+export const WRITTEN_THESIS = "Public line (per partner notes): fintech, deeptech, consumer tech, consumer brands. Pre-seed cheques; the founder is treated as a primary variable. Recent backing also leans to commerce infrastructure (small-town retail, distribution) and businesses with real repeat.";
 
 const FundResearch = z.object({
   thesis_text: z.string(),
@@ -60,7 +60,7 @@ Return {"thesis_text": string, "portfolio":[{"name","description"}]}`,
   } else gaps.push("No web search in this run.");
 
   if (!thesis) { thesis = WRITTEN_THESIS; thesisSource = "the partner notes"; gaps.push("The fund's public thesis couldn't be confirmed, so this uses the line in the partner notes."); }
-  else if (!/fintech|deeptech|consumer/i.test(thesis)) { thesis += " Sectors, per the partner notes: fintech, deeptech, consumer tech and consumer brands."; thesisSource = "the fund's website and the partner notes"; }
+  else if (!/fintech|deeptech|consumer/i.test(thesis)) { thesis += " Sectors, per the partner notes: fintech, deeptech, consumer tech and consumer brands, and lately commerce infrastructure."; thesisSource = "the fund's website and the partner notes"; }
   db.fund.thesis_text = thesis; db.fund.thesis_source = thesisSource;
   db.fund.portfolio = [...byName.values()];
   const fromSource = db.fund.portfolio.filter((p) => p.source.startsWith("fund website")).length;

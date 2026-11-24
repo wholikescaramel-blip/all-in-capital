@@ -1,9 +1,9 @@
 {
   "current": {
-    "registered_at": "2026-11-24T06:03:12.224Z",
+    "registered_at": "2026-11-24T08:58:21.081Z",
     "hashes": {
-      "data/backtest/preregistration.json": "f33fafee7af9ede1d982a5cfa88465886dff2d385a139069c19e52e015c83a94",
-      "src/config/rubric.ts": "2650e47ccd3f93462d405723a0abdbf28e203c3074ab4c8c4d3b9f5a772d8518",
+      "data/backtest/preregistration.json": "826f36803220423b392de916c76b3fef935744972186512e44f35312a79e684d",
+      "src/config/rubric.ts": "b36b700839441947d69f1d8cacbfca3f0a9c611b5285e537f42db23eaeda0621",
       "src/config/process.ts": "7836678dee11fc96114d1762d2ed086c3fd348ebb8b7a67dea14d0833ef9f21c",
       "data/backtest/memos.json": "db039a2920cb00fcf18c2d363fff3fa1fdb1fbf6fa88898cbc030c4b4605ac07"
     }
@@ -22,6 +22,15 @@
       "registered_at": "2026-11-20T11:06:14.309Z",
       "hashes": {
         "data/backtest/preregistration.json": "f63691c8f1c2729b289fffb57ef898e4ebfaf023f5ba0c1d5f4b9c879e8dd22a",
+        "src/config/rubric.ts": "2650e47ccd3f93462d405723a0abdbf28e203c3074ab4c8c4d3b9f5a772d8518",
+        "src/config/process.ts": "7836678dee11fc96114d1762d2ed086c3fd348ebb8b7a67dea14d0833ef9f21c",
+        "data/backtest/memos.json": "db039a2920cb00fcf18c2d363fff3fa1fdb1fbf6fa88898cbc030c4b4605ac07"
+      }
+    },
+    {
+      "registered_at": "2026-11-24T06:03:12.224Z",
+      "hashes": {
+        "data/backtest/preregistration.json": "f33fafee7af9ede1d982a5cfa88465886dff2d385a139069c19e52e015c83a94",
         "src/config/rubric.ts": "2650e47ccd3f93462d405723a0abdbf28e203c3074ab4c8c4d3b9f5a772d8518",
         "src/config/process.ts": "7836678dee11fc96114d1762d2ed086c3fd348ebb8b7a67dea14d0833ef9f21c",
         "data/backtest/memos.json": "db039a2920cb00fcf18c2d363fff3fa1fdb1fbf6fa88898cbc030c4b4605ac07"

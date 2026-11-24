@@ -16,7 +16,6 @@ export function ReviewForm({ id, systemRec, crits }: { id: string; systemRec: st
   return (
     <form action={act} className="card beam">
       <h3>Your decision</h3>
-      <p className="muted" style={{ marginTop: 0 }}>The system only suggests. Nothing moves until you decide here.</p>
       <input type="hidden" name="id" value={id} />
       <div className="row">
         <label>Deciding as <select name="reviewer"><option value="associate">associate</option><option value="partner">partner</option></select></label>

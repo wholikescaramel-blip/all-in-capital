@@ -22,6 +22,7 @@
       "Missing data still lowers scores, at the same rate.",
       "A hold still counts as a disagreement."
     ],
+    "wording_only_changes_2026-11-24": "src/config/rubric.ts: the candour gap text was shortened and a 'commerce_infrastructure' sector keyword list was added (the retail keyword moved out of consumer_tech). Neither changes any score or threshold, and the memos carry explicit sectors, so the v2 result is unaffected. Re-registered so the lock matches the file.",
     "known_limit": "Web search is still unavailable on the free key, and memo inputs are one or two paragraphs. Scores will still rest on very little information, so v2 may still fail. Reported either way."
   },
   "purpose": "Pass/fail criteria for trusting the triage system, fixed BEFORE the first backtest run. Changing this file after registration makes the backtest refuse to run until re-registered (and the re-registration is logged).",

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const Sector = z.enum(["fintech", "deeptech", "consumer_tech", "consumer_brand", "other"]);
+export const Sector = z.enum(["fintech", "deeptech", "consumer_tech", "consumer_brand", "commerce_infrastructure", "other"]);
 export type Sector = z.infer<typeof Sector>;
 
 export const Application = z.object({

@@ -99,6 +99,14 @@ assert.equal(db.states[acme], "AWAITING_REVIEW"); assert.ok(db.assessments[acme]
 assert.equal((await createFromFiles(db, [{ name: "Acme_Form.pdf", text: form }])).skipped.length, 1, "adding the same company twice is skipped");
 await assert.rejects(() => createFromName(db, "http://127.0.0.1/admin"), /public website/);
 
+// ---- sectors: commerce infrastructure is its own bucket ----
+{
+  const { normaliseSector } = await import("../src/lib/ingest");
+  assert.equal(normaliseSector("Commerce infrastructure", "", ""), "commerce_infrastructure");
+  assert.equal(normaliseSector("", "Platform for small-town kirana stores", ""), "commerce_infrastructure");
+  assert.equal(normaliseSector("Consumer brands", "", ""), "consumer_brand");
+}
+
 // ---- backtest overlap check: never against itself (any alias) or the other memo companies ----
 {
   const { conflictCheck } = await import("../src/lib/conflict");
