@@ -107,4 +107,25 @@ if (fs.existsSync("Case.pdf")) {
   const { text } = await extractText(pdf, { mergePages: true });
   assert.ok(text.length > 1000, "PDF text extracted");
 }
+// ---- old-shaped records (made before versions/chat/contact existed) must not crash the email code ----
+const { learnFromFeedback, standingNotes, removeNote } = await import("../src/lib/emailflow");
+const old = db.applications[acme];
+db.states[acme] = "DRAFTED";
+db.outreach[acme] = { app_id: acme, state: "DRAFTED", draft: { subject: "s", body: "Hi Asha,\n\nCan we talk for 30 minutes?\n\nThe team, All In Capital" }, followups_sent: 0 } as any; // no versions, chat, attendees
+await reviseDraft(db, acme, "shorter please");
+assert.equal(db.outreach[acme].versions.length, 1); assert.ok(old);
+await saveEdits(db, acme, db.outreach[acme].draft!.body + "\nThanks");
+assert.equal(db.outreach[acme].versions.length, 2);
+
+// ---- feedback memory: a reason, or a repeat, makes a note stand; a one-off does not ----
+db.draft_notes = [];
+const m1 = await learnFromFeedback(db, "Mention their pilot customers");
+assert.equal(db.draft_notes[0].standing, false, "a one-off request is not saved as a standing rule"); assert.match(m1, /ask again/);
+const m2 = await learnFromFeedback(db, "Please mention their pilot customers again");
+assert.equal(db.draft_notes.length, 1, "a similar request updates the same note"); assert.equal(db.draft_notes[0].count, 2); assert.equal(db.draft_notes[0].standing, true);
+await learnFromFeedback(db, "Keep it under 100 words because founders read these on their phones");
+assert.equal(db.draft_notes.length, 2); assert.ok(db.draft_notes[0].standing, "an instruction with a reason is saved straight away");
+assert.equal(standingNotes(db).length, 2); assert.match(standingNotes(db).join(" "), /asked 2 times/);
+removeNote(db, db.draft_notes[0].id); assert.equal(db.draft_notes.length, 1);
+void m2;
 console.log("selftest OK:", db.audit.length, "audit entries,", db.corrections.length, "correction(s)");

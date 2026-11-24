@@ -1,6 +1,6 @@
 "use client";
 import { useActionState, useEffect, useState, useTransition } from "react";
-import { draftAction, replyAction, restoreAction, reviewAction, reviseAction, saveDraftAction, sendAction, tickAction } from "./actions";
+import { draftAction, removeNoteAction, replyAction, restoreAction, reviewAction, reviseAction, saveDraftAction, sendAction, tickAction } from "./actions";
 
 type Crit = { key: string; label: string; score: number };
 type Res = { error?: string; ok?: boolean } | null;
@@ -37,7 +37,7 @@ export function ReviewForm({ id, systemRec, crits }: { id: string; systemRec: st
   );
 }
 
-export function OutreachPanel(p: { id: string; state: string; contact?: Contact; draft?: { subject: string; body: string }; versions: Version[]; chat: Chat[]; followups: number; slot?: string; slots: string[] }) {
+export function OutreachPanel(p: { id: string; state: string; contact?: Contact; draft?: { subject: string; body: string }; versions: Version[]; chat: Chat[]; notes: { id: string; rule: string; count: number; standing: boolean }[]; followups: number; slot?: string; slots: string[] }) {
   const { id, state } = p;
   const [body, setBody] = useState(p.draft?.body ?? "");
   const [ask, setAsk] = useState("");
@@ -97,6 +97,16 @@ export function OutreachPanel(p: { id: string; state: string; contact?: Contact;
           <input value={ask} onChange={(e) => setAsk(e.target.value)} placeholder="e.g. shorter, and ask about repeat orders" aria-label="What should change" />
           <button disabled={busy || ask.trim().length < 3}>{busy ? "Rewriting..." : "Send"}</button>
         </form>
+
+        {p.notes.length > 0 && (
+          <details className="fold">
+            <summary>What the AI has learned from your feedback ({p.notes.filter((n) => n.standing).length} saved)</summary>
+            <ul className="notes">{p.notes.map((n) => (
+              <li key={n.id}>{n.rule}{n.count > 1 && <span> (asked {n.count} times)</span>}{!n.standing && <span> (used once, not saved yet)</span>}{" "}
+                <button className="ghost" style={{ padding: "1px 9px", fontSize: 12 }} disabled={busy} onClick={() => call(() => removeNoteAction(id, n.id))}>Remove</button></li>))}
+            </ul>
+          </details>
+        )}
 
         <p className="row" style={{ marginTop: 18 }}>
           <button disabled={busy} onClick={() => call(() => sendAction(id, "associate"))}>Approve and send</button>

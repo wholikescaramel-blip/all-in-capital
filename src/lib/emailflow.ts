@@ -1,8 +1,9 @@
 import { z } from "zod";
-import type { Application, DB, DraftCheck, DraftVersion, Outreach } from "./schemas";
+import type { Application, DB, DraftCheck, DraftNote, DraftVersion, Outreach } from "./schemas";
 import { completeJSON, hasLLM } from "./llm";
 import { PROCESS } from "../config/process";
-import { nowISO } from "./store";
+import { nowISO, uid } from "./store";
+import { similarity } from "./corrections";
 
 const S = z.coerce.string();
 
@@ -77,13 +78,14 @@ function templateDraft(app: Application, contact: NonNullable<Outreach["contact"
   };
 }
 
-async function writeDraft(app: Application, contact: NonNullable<Outreach["contact"]>, who: string[], facts: Fact[], topics: string[], extra: { base?: string; instruction?: string; issues?: string[] }): Promise<Draft> {
+async function writeDraft(app: Application, contact: NonNullable<Outreach["contact"]>, who: string[], facts: Fact[], topics: string[], extra: { base?: string; instruction?: string; issues?: string[]; notes?: string[] }): Promise<Draft> {
   const user = [
     `FOUNDER: ${contact.name}${contact.role ? ` (${contact.role})` : ""}`,
     `COMPANY: ${app.company}`,
     `WHO JOINS: ${attendeesText(who)}`,
     `FACTS:\n${facts.map((f) => `[${f.id}] ${f.text}`).join("\n")}`,
     `QUESTION TOPICS:\n${topics.length ? topics.map((t) => `- ${t}`).join("\n") : "- (none; just ask for the call)"}`,
+    extra.notes?.length ? `WHAT REVIEWERS HAVE ASKED FOR IN EARLIER DRAFTS (follow these unless they clash with the HARD RULES):\n${extra.notes.map((n) => `- ${n}`).join("\n")}` : "",
     extra.base ? `CURRENT DRAFT:\n${extra.base}` : "",
     extra.instruction ? `REVIEWER'S INSTRUCTION (follow it, keep all rules): ${extra.instruction}` : "",
     extra.issues?.length ? `PROBLEMS FOUND IN THE LAST VERSION (fix all of them):\n${extra.issues.map((i) => `- ${i}`).join("\n")}` : "",
@@ -116,7 +118,11 @@ export async function checkDraft(body: string, facts: Fact[], rounds: number): P
   }
 }
 
-const getOut = (db: DB, id: string): Outreach => (db.outreach[id] ??= { app_id: id, state: "NONE", followups_sent: 0, replies: [], proposed_slots: [], attendees: [], versions: [], chat: [] });
+const getOut = (db: DB, id: string): Outreach => {
+  const o = (db.outreach[id] ??= { app_id: id, state: "NONE", followups_sent: 0, replies: [], proposed_slots: [], attendees: [], versions: [], chat: [] });
+  o.versions ??= []; o.chat ??= []; o.attendees ??= []; // records from older versions may lack these
+  return o;
+};
 
 // Draft -> fact-check -> fix, repeated until it passes or the round/time budget runs out. A failing draft is never hidden.
 export async function draftWithChecks(db: DB, appId: string, opts: { instruction?: string; base?: string; maxRounds?: number; budgetMs?: number } = {}): Promise<DraftVersion> {
@@ -134,7 +140,7 @@ export async function draftWithChecks(db: DB, appId: string, opts: { instruction
     let issues: string[] = [];
     let base = opts.base;
     for (let round = 1; round <= maxRounds; round++) {
-      try { draft = await writeDraft(app, o.contact, who, facts, topics, { base, instruction: opts.instruction, issues }); }
+      try { draft = await writeDraft(app, o.contact, who, facts, topics, { base, instruction: opts.instruction, issues, notes: standingNotes(db) }); }
       catch { break; }
       check = await checkDraft(draft.body, facts, round);
       if (check.pass || Date.now() - start > budget) break;
@@ -153,8 +159,9 @@ export async function reviseDraft(db: DB, appId: string, instruction: string) {
   if (!o.draft) throw new Error("No draft to revise");
   if (instruction.trim().length < 3) throw new Error("Type what you want changed");
   o.chat.push({ at: nowISO(), who: "human", text: instruction.trim() });
+  const learned = await learnFromFeedback(db, instruction.trim());
   const v = await draftWithChecks(db, appId, { instruction: instruction.trim(), base: o.draft.body });
-  o.chat.push({ at: nowISO(), who: "ai", text: summary(v) });
+  o.chat.push({ at: nowISO(), who: "ai", text: `${summary(v)} ${learned}` });
   return v;
 }
 
@@ -184,4 +191,49 @@ export function restoreVersion(db: DB, appId: string, n: number) {
   if (!v) throw new Error("No such version");
   o.draft = { subject: v.subject, body: v.body };
   o.chat.push({ at: nowISO(), who: "ai", text: `Switched back to version ${n}.` });
+}
+
+
+// ---------- memory: what reviewers ask for ----------
+// Every instruction is kept. It becomes a standing note (used in all future drafts) when the reviewer gave a reason,
+// or asked for something similar before. One-off tweaks stay as candidates, so a single odd request does not rewrite every email.
+const REASON = /\b(because|since|so that|too\s+\w+|otherwise|as (it|they|we|founders)|reason|don't|do not|never|always|keep|every time)\b/i;
+const MAX_NOTES = 30;
+
+export const standingNotes = (db: DB): string[] =>
+  (db.draft_notes ?? []).filter((n) => n.standing).sort((a, b) => b.count - a.count || b.last_seen.localeCompare(a.last_seen)).slice(0, 8)
+    .map((n) => (n.count > 1 ? `${n.rule} (asked ${n.count} times)` : n.rule));
+
+async function toRule(instruction: string): Promise<string> {
+  const plain = instruction.replace(/\s+/g, " ").trim().replace(/^./, (c) => c.toUpperCase());
+  if (!hasLLM()) return plain;
+  try {
+    const r = await completeJSON({
+      system: "Turn a reviewer's instruction about one email into a short, general rule for all future outreach emails. One sentence, imperative, under 20 words. Keep the reason in brackets if one was given. Drop anything specific to one company.",
+      user: `Instruction: ${instruction}\nReturn {"rule": string}`, schema: z.object({ rule: S }), model: "fast", max_tokens: 300,
+    });
+    return r.rule.trim() || plain;
+  } catch { return plain; }
+}
+
+export async function learnFromFeedback(db: DB, instruction: string): Promise<string> {
+  db.draft_notes ??= [];
+  const now = nowISO();
+  const match = db.draft_notes.map((n) => ({ n, s: similarity(instruction, [n.rule, ...n.raw].join(" ")) })).sort((a, b) => b.s - a.s)[0];
+  if (match && match.s >= 0.45) { // asked before
+    const n = match.n;
+    n.count += 1; n.raw.push(instruction); n.last_seen = now;
+    const wasStanding = n.standing; n.standing = true;
+    return wasStanding ? `Already a standing note, asked ${n.count} times: ${n.rule}` : `You've asked for this before, so I've saved it for future emails: ${n.rule}`;
+  }
+  const rule = await toRule(instruction);
+  const standing = REASON.test(instruction);
+  const note: DraftNote = { id: uid("note"), rule, raw: [instruction], count: 1, standing, created_at: now, last_seen: now };
+  db.draft_notes.unshift(note);
+  db.draft_notes = db.draft_notes.slice(0, MAX_NOTES);
+  return standing ? `Saved for future emails: ${rule}` : "Used for this email. If you ask again, I'll save it for future ones.";
+}
+
+export function removeNote(db: DB, id: string) {
+  db.draft_notes = (db.draft_notes ?? []).filter((n) => n.id !== id);
 }

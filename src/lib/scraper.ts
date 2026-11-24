@@ -15,7 +15,7 @@ export type ScrapeConfig = {
 
 export const defaultScrapeConfig = (): ScrapeConfig => ({
   // A real, contactable UA belongs here. Set SCRAPER_CONTACT (an email or repo URL) in the environment.
-  userAgent: `AllInTriageBot/0.1 (research for an MBA assignment; contact: ${process.env.SCRAPER_CONTACT ?? "set SCRAPER_CONTACT"})`,
+  userAgent: `AllInCapitalReviewBot/0.1 (research for an MBA assignment; contact: ${process.env.SCRAPER_CONTACT ?? "set SCRAPER_CONTACT"})`,
   delayMs: 1500, maxFetches: 8, timeBudgetMs: 40000, timeoutMs: 12000,
   blockedHosts: ["linkedin.com", "www.linkedin.com", "google.com", "www.google.com", "bing.com", "duckduckgo.com"],
   cachePath: path.join(process.cwd(), "data", "scrape-cache.json"), cacheTtlMs: 24 * 3600 * 1000,

@@ -1,6 +1,6 @@
-# All In Triage
+# All In Capital
 
-First-pass triage for All In Capital applications. It makes the case; a reviewer decides. Nothing is auto-rejected or auto-advanced.
+First-pass review of applications for All In Capital. It makes the case; a reviewer decides. Nothing is auto-rejected or auto-advanced.
 The fund's people in the case are personas; the app models them as roles (`associate`, `partner`) with no logins.
 
 Stack (all free tier): Gemini API (scoring + grounded Google Search research), Neon Postgres (state), GitHub (repo), Vercel (review UI).

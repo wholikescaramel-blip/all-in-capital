@@ -1,5 +1,5 @@
 {
-  "name": "all-in-triage",
+  "name": "all-in-capital",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -18,7 +18,8 @@
     "check": "tsx --env-file-if-exists=.env.local scripts/check-connections.ts",
     "status": "tsx --env-file-if-exists=.env.local scripts/status.ts",
     "refresh-fund": "tsx --env-file-if-exists=.env.local scripts/refresh-fund.ts",
-    "try-email": "tsx --env-file-if-exists=.env.local scripts/try-email.ts"
+    "try-email": "tsx --env-file-if-exists=.env.local scripts/try-email.ts",
+    "rescore": "tsx --env-file-if-exists=.env.local scripts/rescore.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

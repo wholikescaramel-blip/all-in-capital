@@ -14,8 +14,18 @@ export const storeKind = () => (useNeon() ? "neon" : "local-file");
 export function emptyDB(): DB {
   return {
     applications: {}, states: {}, evidence: [], gaps: [], assessments: {}, reviews: [], corrections: [],
-    outreach: {}, audit: [], pending: {}, outbox: [], fund: { thesis_text: "", thesis_source: "", portfolio: [], gaps: [] }, backtest_runs: [],
+    outreach: {}, audit: [], pending: {}, draft_notes: [], outbox: [], fund: { thesis_text: "", thesis_source: "", portfolio: [], gaps: [] }, backtest_runs: [],
   };
+}
+
+// Records written by earlier versions of the app can lack newer fields. Fill them in on every load so no code path trips on undefined.
+function normalise(db: DB): DB {
+  db.draft_notes ??= [];
+  db.pending ??= {};
+  for (const o of Object.values(db.outreach)) {
+    o.versions ??= []; o.chat ??= []; o.attendees ??= []; o.replies ??= []; o.proposed_slots ??= []; o.followups_sent ??= 0;
+  }
+  return db;
 }
 
 let ready = false;
@@ -41,10 +51,10 @@ export async function loadDB(): Promise<DB> {
       await ensureTable();
       const sql = neon(process.env.DATABASE_URL!);
       const rows = await sql`select data from app_state where id = 1`;
-      return { ...emptyDB(), ...(rows[0]?.data ?? {}) };
+      return normalise({ ...emptyDB(), ...(rows[0]?.data ?? {}) });
     });
   }
-  try { return { ...emptyDB(), ...JSON.parse(fs.readFileSync(DB_PATH, "utf8")) }; } catch { return emptyDB(); }
+  try { return normalise({ ...emptyDB(), ...JSON.parse(fs.readFileSync(DB_PATH, "utf8")) }); } catch { return emptyDB(); }
 }
 
 export async function saveDB(db: DB) {

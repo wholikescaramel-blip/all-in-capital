@@ -4,7 +4,7 @@ import { extractText, getDocumentProxy } from "unpdf";
 import { loadDB, saveDB } from "@/lib/store";
 import { submitReview } from "@/lib/pipeline";
 import { approveAndSend, draftEmail, handleReply, tick } from "@/lib/outreach";
-import { reviseDraft, restoreVersion, saveEdits } from "@/lib/emailflow";
+import { removeNote, reviseDraft, restoreVersion, saveEdits } from "@/lib/emailflow";
 import { advance, createFromFiles, createFromName, type AddResult } from "@/lib/addflow";
 import { CRITERIA } from "@/config/rubric";
 
@@ -99,3 +99,5 @@ export async function advanceAction(id: string): Promise<{ done?: boolean; stage
     return { error: msg };
   }
 }
+
+export async function removeNoteAction(appId: string, noteId: string) { return run(appId, (db) => removeNote(db, noteId)); }

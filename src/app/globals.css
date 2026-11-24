@@ -1,4 +1,4 @@
-/* All In Triage: dark-first, glass panels on a dot grid, animated border beams and score rings.
+/* All In Capital: dark-first, glass panels on a dot grid, animated border beams and score rings.
    Inspired by Magic UI (beams, shimmer), Superdesign (calm density), Awwwards (editorial type), Dribbble (score rings). No dependencies. */
 @property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
 

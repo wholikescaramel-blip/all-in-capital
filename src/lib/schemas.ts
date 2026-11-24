@@ -122,6 +122,8 @@ export const DraftCheck = z.object({
   rounds: z.number(),
 });
 export type DraftCheck = z.infer<typeof DraftCheck>;
+// What reviewers have asked for in earlier drafts, kept so future drafts start closer to what they want.
+export type DraftNote = { id: string; rule: string; raw: string[]; count: number; standing: boolean; created_at: string; last_seen: string };
 export type DraftVersion = { n: number; at: string; by: "ai" | "human"; instruction?: string; subject: string; body: string; check?: DraftCheck };
 
 export const Outreach = z.object({
@@ -160,6 +162,7 @@ export type DB = {
   outreach: Record<string, Outreach>;
   audit: AuditEntry[];
   pending: Record<string, { stage: number; flags?: { portfolio_company: string; reason: string; severity: "overlap" | "warning" }[]; error?: string }>; // applications mid-processing
+  draft_notes: DraftNote[];
   outbox: { at: string; to: string; subject: string; body: string; app_id: string; mock: true }[];
   fund: { thesis_text: string; thesis_source: string; portfolio: { name: string; description: string; source: string }[]; gaps: string[]; researched_at?: string; sources?: { url: string; fetched_at: string; note: string }[] };
   backtest_runs: unknown[];

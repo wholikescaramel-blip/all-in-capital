@@ -103,7 +103,7 @@ export default async function AppPage({ params }: { params: Promise<{ id: string
     <div style={{ marginTop: 30 }}>
       {state === "AWAITING_REVIEW" && <ReviewForm id={id} systemRec={asm.recommendation} crits={asm.scores.map((s) => ({ key: s.criterion, label: CRITERIA.find((c) => c.key === s.criterion)!.label, score: s.score }))} />}
       {["APPROVED", "DRAFTED", "AWAITING_REPLY", "SCHEDULING", "SCHEDULED", "FLAGGED"].includes(state) && (
-        <OutreachPanel id={id} state={state} contact={out?.contact ?? pickContact(app)} draft={out?.draft} versions={(out?.versions ?? []) as never} chat={out?.chat ?? []} followups={out?.followups_sent ?? 0}
+        <OutreachPanel id={id} state={state} contact={out?.contact ?? pickContact(app)} draft={out?.draft} versions={(out?.versions ?? []) as never} chat={out?.chat ?? []} notes={db.draft_notes} followups={out?.followups_sent ?? 0}
           slot={out?.slot ? slotFmt(out.slot) : undefined} slots={(out?.proposed_slots ?? []).map(slotFmt)} />)}
     </div>
 
