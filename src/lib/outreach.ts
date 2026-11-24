@@ -3,43 +3,27 @@ import { audit, nowISO, transition } from "./store";
 import { PROCESS } from "../config/process";
 import { completeJSON, hasLLM } from "./llm";
 import { z } from "zod";
+import { draftWithChecks, pickContact } from "./emailflow";
 
 // ---------- Mock email: appended to db.outbox. No real message is ever sent. ----------
 export function mockSend(db: DB, to: string, subject: string, body: string, appId: string) {
   db.outbox.push({ at: nowISO(), to, subject, body, app_id: appId, mock: true });
 }
 
-const getOut = (db: DB, id: string): Outreach => (db.outreach[id] ??= { app_id: id, state: "NONE", followups_sent: 0, replies: [], proposed_slots: [], attendees: [] });
-const founderEmail = (db: DB, id: string) => `${db.applications[id].founders[0]?.name.toLowerCase().replace(/[^a-z]+/g, ".") ?? "founder"}@${PROCESS.founder_domain_placeholder}`;
+const getOut = (db: DB, id: string): Outreach => (db.outreach[id] ??= { app_id: id, state: "NONE", followups_sent: 0, replies: [], proposed_slots: [], attendees: [], versions: [], chat: [] });
+const founderEmail = (db: DB, id: string) => (getOut(db, id).contact ?? pickContact(db.applications[id])).email;
 
-// ---------- Step 9: draft (take_call only) ----------
+// ---------- Step 9: draft (take_call only): write, fact-check, auto-fix ----------
 export async function draftEmail(db: DB, appId: string) {
   const app = db.applications[appId];
   if (db.states[appId] !== "APPROVED") throw new Error("Drafts are only made for applications a human approved as take_call");
-  const who = PROCESS.routing[app.sector] ?? PROCESS.routing.default;
-  const first = app.founders[0]?.name.split(" ")[0] ?? "there";
-  let body = `Hi ${first},\n\nThanks for applying to ${PROCESS.fund_name}. We read the ${app.company} deck and application and would like to talk. It would be a 30-minute call${who.includes("deeptech_partner") ? " with our associate and our deeptech partner" : " with our associate"}.\n\nWe can do Tuesday or Thursday afternoons. Reply "yes" and we will send a few slots, or tell us if this isn't the right time.\n\nBest,\nThe team\n${PROCESS.fund_name}`;
-  if (hasLLM()) {
-    try {
-      const r = await completeJSON({
-        system: "Draft a warm, short, specific invitation email from an investor associate to a founder. No flattery, no promises about outcome, mention 30 minutes and Tuesday/Thursday afternoons. Do not include scores or internal assessment.",
-        user: `Company: ${app.company}\nOne-liner: ${app.one_liner}\nFounder first name: ${first}\nAttendees: ${who.join(", ")}\nReturn {"body": string}`,
-        schema: z.object({ body: z.string() }), model: "fast",
-      });
-      body = r.body;
-    } catch { /* keep template */ }
-  }
   const o = getOut(db, appId);
-  o.draft = { subject: `${PROCESS.fund_name} x ${app.company}: a call?`, body };
-  o.state = "DRAFTED"; o.attendees = who;
+  o.contact = pickContact(app);
+  o.attendees = PROCESS.routing[app.sector] ?? PROCESS.routing.default;
+  await draftWithChecks(db, appId);
+  o.state = "DRAFTED";
   transition(db, appId, "DRAFTED", "email-drafter");
   return o;
-}
-
-export function editDraft(db: DB, appId: string, body: string) {
-  const o = getOut(db, appId);
-  if (!o.draft || db.states[appId] !== "DRAFTED") throw new Error("No editable draft");
-  o.draft.body = body;
 }
 
 // ---------- Step 8-9: human approves, then mock send ----------

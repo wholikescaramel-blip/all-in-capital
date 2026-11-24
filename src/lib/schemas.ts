@@ -17,6 +17,9 @@ export const Application = z.object({
   applied_at: z.string(),
   is_backtest: z.boolean().default(false),
   research_cutoff: z.string().optional(), // ISO date; evidence after this is blocked in backtests
+  website: z.string().optional(),
+  contact_email: z.string().optional(), // only when the applicant gave one; never guessed
+  kind: z.enum(["pair", "domain", "manual"]).default("pair"), // pair = deck+form, domain = name/website entry, manual = pasted text
 });
 export type Application = z.infer<typeof Application>;
 
@@ -78,6 +81,7 @@ export const Assessment = z.object({
   case_for: z.array(z.string()),
   case_against: z.array(z.string()),
   advisory_only: z.literal(true).default(true),
+  scored_by: z.string().optional(), // model that produced the scores (shown quietly, not in the reasoning text)
 });
 export type Assessment = z.infer<typeof Assessment>;
 
@@ -110,10 +114,23 @@ export type Correction = z.infer<typeof Correction>;
 export const OutreachState = z.enum([
   "NONE", "DRAFTED", "APPROVED_TO_SEND", "SENT", "AWAITING_REPLY", "SCHEDULING", "MEETING_SCHEDULED", "FLAGGED_PARTNER",
 ]);
+// Fact-check of an email draft: every factual claim must trace to the application; nothing internal may leak.
+export const DraftCheck = z.object({
+  pass: z.boolean(),
+  claims: z.array(z.object({ text: z.string(), fact_id: z.string().nullable(), quote: z.string().optional(), supported: z.boolean(), note: z.string().optional() })),
+  issues: z.array(z.string()), // unsupported claims and rule breaks, in plain words
+  rounds: z.number(),
+});
+export type DraftCheck = z.infer<typeof DraftCheck>;
+export type DraftVersion = { n: number; at: string; by: "ai" | "human"; instruction?: string; subject: string; body: string; check?: DraftCheck };
+
 export const Outreach = z.object({
   app_id: z.string(),
   state: OutreachState,
   draft: z.object({ subject: z.string(), body: z.string() }).optional(),
+  contact: z.object({ name: z.string(), role: z.string().optional(), email: z.string(), email_source: z.enum(["form", "placeholder"]) }).optional(),
+  versions: z.array(z.any()).default([]), // DraftVersion[]
+  chat: z.array(z.object({ at: z.string(), who: z.enum(["human", "ai"]), text: z.string() })).default([]),
   approved_by: z.string().optional(),
   followups_sent: z.number().default(0),
   last_sent_at: z.string().optional(),
@@ -142,6 +159,7 @@ export type DB = {
   corrections: Correction[];
   outreach: Record<string, Outreach>;
   audit: AuditEntry[];
+  pending: Record<string, { stage: number; flags?: { portfolio_company: string; reason: string; severity: "overlap" | "warning" }[]; error?: string }>; // applications mid-processing
   outbox: { at: string; to: string; subject: string; body: string; app_id: string; mock: true }[];
   fund: { thesis_text: string; thesis_source: string; portfolio: { name: string; description: string; source: string }[]; gaps: string[]; researched_at?: string; sources?: { url: string; fetched_at: string; note: string }[] };
   backtest_runs: unknown[];

@@ -4,6 +4,7 @@ import { completeJSON, hasLLM, webResearch } from "./llm";
 import { nowISO, uid } from "./store";
 import { PROCESS } from "../config/process";
 import { scrapeFundSite, nameKey } from "./fundsite";
+import { QuotaError } from "./llm";
 
 // Seed portfolio from the memos and partner notes. This is PARTIAL by construction: the case says the full public list
 // is not given. The research step tries to fetch the real one; if it can't, a gap is logged and conflict checks warn.
@@ -55,14 +56,15 @@ Return {"thesis_text": string, "portfolio":[{"name","description"}]}`,
       for (const p of r.portfolio) if (!byName.has(nameKey(p.name))) byName.set(nameKey(p.name), { name: p.name, description: p.description, source: "web search (unverified against fund site)" });
       if (!thesis && r.thesis_text) { thesis = r.thesis_text; thesisSource = w.sources.map((s) => s.url).join(", ") || "web search"; }
       if (!w.sources.length) gaps.push("Web search returned no sources for the fund's thesis or portfolio.");
-    } catch (e) { gaps.push(`Fund web research failed (${String(e).slice(0, 100)}).`); }
-  } else gaps.push("Grounded web search not run (no GEMINI_API_KEY).");
+    } catch (e) { if (!(e instanceof QuotaError)) gaps.push("Web search could not be used this run."); } // the site read above is the main source; search only adds to it
+  } else gaps.push("No web search in this run.");
 
-  if (!thesis) { thesis = WRITTEN_THESIS; thesisSource = "partner notes (secondhand; not confirmed from a public source)"; gaps.push("Public thesis not confirmed: using the line quoted in the partner notes. Cost: thesis_basis can only be judged against a secondhand statement."); }
+  if (!thesis) { thesis = WRITTEN_THESIS; thesisSource = "the partner notes"; gaps.push("The fund's public thesis couldn't be confirmed, so this uses the line in the partner notes."); }
+  else if (!/fintech|deeptech|consumer/i.test(thesis)) { thesis += " Sectors, per the partner notes: fintech, deeptech, consumer tech and consumer brands."; thesisSource = "the fund's website and the partner notes"; }
   db.fund.thesis_text = thesis; db.fund.thesis_source = thesisSource;
   db.fund.portfolio = [...byName.values()];
   const fromSource = db.fund.portfolio.filter((p) => p.source.startsWith("fund website")).length;
-  if (!fromSource) gaps.push("Portfolio list not confirmed from the fund's site: only companies named in memos and notes (plus any from web search). Cost: the conflict check can miss overlaps with unseen portfolio companies.");
+  if (!fromSource) gaps.push("Couldn't read the portfolio from the fund's site. Only the companies named in the memos are checked for overlap.");
   db.fund.gaps = gaps;
 }
 
@@ -76,8 +78,10 @@ export function baseEvidence(app: Application): Evidence[] {
     if (!v) continue;
     ev.push({ id: uid("ev"), app_id: app.id, claim: `${k}: ${v}`.slice(0, 400), source_type: "form", url_or_ref: `form:${k}`, retrieved_at: t, quote_or_snippet: v.slice(0, 600) });
   }
-  const paras = app.deck_text.split(/\r?\n\s*\r?\n/).map((p) => p.replace(/\s+/g, " ").trim()).filter((p) => p.length >= 20);
-  paras.forEach((p, i) => ev.push({ id: uid("ev"), app_id: app.id, claim: p.slice(0, 300), source_type: "deck", url_or_ref: `deck:p${i + 1}`, retrieved_at: t, quote_or_snippet: p.slice(0, 600) }));
+  let chunks = app.deck_text.split(/\r?\n\s*\r?\n/);
+  if (chunks.length < 4) chunks = app.deck_text.split(/\r?\n+/); // PDF text may use single line breaks only
+  const paras = chunks.map((p) => p.replace(/\s+/g, " ").trim()).filter((p) => p.length >= 20);
+  paras.forEach((p, i) => ev.push({ id: uid("ev"), app_id: app.id, claim: p.slice(0, 300), source_type: app.kind === "domain" ? "scrape" : "deck", url_or_ref: app.kind === "domain" ? `${app.website ?? "website"}#p${i + 1}` : `deck:p${i + 1}`, retrieved_at: t, quote_or_snippet: p.slice(0, 600) }));
   return ev;
 }
 

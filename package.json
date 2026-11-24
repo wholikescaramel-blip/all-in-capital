@@ -16,13 +16,16 @@
     "test:scraper": "tsx scripts/scraper-test.ts",
     "scrape:fund": "tsx --env-file-if-exists=.env.local scripts/scrape-fund.ts",
     "check": "tsx --env-file-if-exists=.env.local scripts/check-connections.ts",
-    "status": "tsx --env-file-if-exists=.env.local scripts/status.ts"
+    "status": "tsx --env-file-if-exists=.env.local scripts/status.ts",
+    "refresh-fund": "tsx --env-file-if-exists=.env.local scripts/refresh-fund.ts",
+    "try-email": "tsx --env-file-if-exists=.env.local scripts/try-email.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "unpdf": "^2.2.2",
     "zod": "^3.24.0"
   },
   "devDependencies": {

@@ -42,6 +42,8 @@ async function gemini(model: string, body: unknown, failFastAfter = 6): Promise<
       const m = t.match(/"retryDelay":\s*"(\d+)s"/);
       // 429 with no retryDelay = hard quota (e.g. grounded search not included in the free tier): retrying only wastes time.
       if (res.status === 429 && !m && /RESOURCE_EXHAUSTED/.test(t)) throw new QuotaError(`Gemini quota exhausted for ${model}${(body as any).tools ? " (grounded search)" : ""}`);
+      // A long rate-limit wait would blow a 60s serverless limit: let a caller with a fallback switch models instead of waiting.
+      if (res.status === 429 && m && Number(m[1]) > 15 && failFastAfter < 6) throw new Error(`Gemini 429 UNAVAILABLE for ${model}: retry in ${m[1]}s`);
       if (res.status >= 500 && attempt + 1 >= failFastAfter) throw new Error(`Gemini ${res.status} UNAVAILABLE for ${model} after ${attempt + 1} tries`); // overload: let the caller fall back
       await sleep(m ? Number(m[1]) * 1000 + 500 : Math.min(60000, 4000 * 2 ** attempt));
       continue;

@@ -17,7 +17,11 @@ const LABELS = [
   "How did you hear about us?", "Anything else we should know?",
 ];
 
-export function parseForm(text: string): Record<string, string> {
+export function parseForm(rawText: string): Record<string, string> {
+  // PDF text often has no blank line between fields: start a new paragraph at every known label.
+  const escapeRe = (l: string) => l.replace(/[.*+?^$(){}|[\]\\\/]/g, "\\$&");
+  const labelRe = new RegExp("(^|\\n)[ \\t]*(" + LABELS.map(escapeRe).join("|") + ")(?=[ \\t?:]|$)", "g");
+  const text = rawText.replace(labelRe, "\n\n$2");
   const paras = text.split(/\r?\n\s*\r?\n/).map((p) => p.replace(/\s*\r?\n\s*/g, " ").trim()).filter(Boolean);
   const out: Record<string, string> = {};
   let cur: string | null = null;

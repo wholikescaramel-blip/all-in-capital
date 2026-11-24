@@ -73,15 +73,15 @@ export async function scrapeFundSite(urls: string[] = PROCESS.fund_public_urls):
         if (k && !seen.has(k)) seen.set(k, s);
       }
       portfolio = [...seen.values()].map((name) => ({ name, description: "", source: pf.url }));
-      if (portfolio.length) gaps.push("Portfolio names came from link text and logo alt text only (no model extraction); descriptions are missing, so product-overlap checks are weaker for these.");
+      if (portfolio.length) gaps.push("Portfolio names were read from links and logos, without descriptions, so product-overlap checks are weaker.");
     }
-    if (!portfolio.length) gaps.push("Portfolio page was fetched but no company names could be read from it.");
+    if (!portfolio.length) gaps.push("The portfolio page loaded but no company names could be read from it.");
   }
 
   let thesis_text = "", thesis_url: string | undefined;
   if (thesisPage) {
     thesis_url = thesisPage.url;
-    if (!report.pages.thesis) gaps.push("No dedicated thesis page found on the fund site; thesis wording taken from the homepage, which is marketing copy and may not state sectors or stage.");
+    if (!report.pages.thesis) gaps.push("The fund's site has no thesis page, so the thesis comes from its homepage.");
     if (hasLLM()) {
       try {
         const r = await completeJSON({

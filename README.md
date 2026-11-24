@@ -61,3 +61,10 @@ npm test              # offline end-to-end self-test (state machine, corrections
 - Scraped portfolio names come from link and logo text unless Gemini extraction runs (it adds descriptions); a few non-company labels can slip through (the live site gave "Early conviction"). ePlane is not listed on the live site, so it only enters via the memos.
 - If the fund site can't be read, a gap is logged and conflict checks carry a warning.
 - Email and calendar are mocked: sends are recorded in the `outbox` of the stored state.
+
+## Adding applications and the email flow
+
+- **Add applications** page: upload decks and forms (PDF or text, paired by file name such as Acme_Deck.pdf and Acme_Form.pdf), or type a company name or website. Each company is then read, researched, checked against the portfolio and scored in short steps, so it fits Vercel limits. The files in data/applications still load with npm run ingest.
+- **Email**: after a reviewer approves a call, the AI writes the email from facts in the application, a second pass checks every claim against its source and rewrites if needed (up to 3 rounds), and the reviewer can ask for changes in a chat box. Every version and its fact-check is kept. Sending is mocked.
+- The contact is the founder named on the application. If no email was given, a stand-in address on a reserved .example domain is shown. Real addresses are never guessed.
+- Scripts: npm run status, npm run refresh-fund, npm run try-email -- grainkind (dry run, saves nothing).

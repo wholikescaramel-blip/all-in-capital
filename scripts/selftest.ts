@@ -68,4 +68,43 @@ assert.equal(db.states[a5.id], "SCHEDULING");
 await handleReply(db, a5.id, "2 works", t0);
 assert.equal(db.states[a5.id], "SCHEDULED");
 assert.ok(db.audit.length > 30);
+// ---- email workspace: placeholder contact, versions, fact-check, revision chat ----
+const o5 = db.outreach[a5.id];
+assert.equal(o5.contact?.email_source, "placeholder");
+assert.match(o5.contact!.email, /^[a-z]+@[a-z0-9]+\.example$/, "placeholder address on a reserved .example domain");
+assert.equal(o5.versions.length, 1, "first draft recorded as a version");
+assert.ok((o5.versions[0] as any).check, "every draft is fact-checked");
+const { checkDraft, reviseDraft, saveEdits, pickContact } = await import("../src/lib/emailflow");
+const bad = await checkDraft("Hi, we scored you 7 and your valuation of 99 is fine.", [{ id: "x", text: "30 customers" }], 0);
+assert.equal(bad.pass, false, "forbidden words and unsourced numbers fail the check");
+assert.ok(bad.issues.some((i) => /99/.test(i)) && bad.issues.some((i) => /scored|valuation/i.test(i)));
+db.states[a5.id] = "DRAFTED";
+await reviseDraft(db, a5.id, "make it shorter");
+assert.equal(o5.versions.length, 2); assert.equal(o5.chat.length, 2, "revision adds a human and an AI chat line");
+await saveEdits(db, a5.id, o5.draft!.body + "\nP.S. see you soon");
+assert.equal(o5.versions.length, 3); assert.equal((o5.versions[2] as any).by, "human");
+assert.equal(pickContact({ ...db.applications[a5.id], contact_email: "real@acme.com" }).email_source, "form", "a given email is used, never guessed");
+
+// ---- add flow: pair files, then staged processing to AWAITING_REVIEW ----
+const { createFromFiles, createFromName, advance, safeHost } = await import("../src/lib/addflow");
+assert.equal(safeHost("localhost"), null); assert.equal(safeHost("http://169.254.169.254/x"), null); assert.equal(safeHost("10.0.0.5"), null);
+assert.equal(safeHost("internal.corp"), null); assert.equal(safeHost("example.com"), "example.com");
+const form = "Company name Acme Foods\n\nSector (as selected) Consumer brands\n\nStage (as selected) Pre-seed\n\nOne-line description Snacks for kids.\n\nFounder 1 Asha Rao, CEO. 5 years in FMCG.\n\nWebsite www.acmefoods.example";
+const made = await createFromFiles(db, [{ name: "Acme_Deck.pdf", text: "Acme Foods\n\nSnacks for kids\n\nRepeat rate 35% over 90 days\n\nCAC INR 400 on Instagram" }, { name: "Acme_Form.pdf", text: form }]);
+assert.equal(made.created.length, 1, "deck and form pair into one company"); assert.equal(made.created[0].company, "Acme Foods");
+const acme = made.created[0].id;
+assert.equal(db.states[acme], "INGESTED");
+let steps = 0; while (!(await advance(db, acme)).done && steps++ < 10);
+assert.equal(db.states[acme], "AWAITING_REVIEW"); assert.ok(db.assessments[acme]); assert.equal(db.pending[acme], undefined);
+assert.equal((await createFromFiles(db, [{ name: "Acme_Form.pdf", text: form }])).skipped.length, 1, "adding the same company twice is skipped");
+await assert.rejects(() => createFromName(db, "http://127.0.0.1/admin"), /public website/);
+
+// ---- PDF text extraction (uses the case PDF if present) ----
+import fs from "node:fs";
+if (fs.existsSync("Case.pdf")) {
+  const { extractText, getDocumentProxy } = await import("unpdf");
+  const pdf = await getDocumentProxy(new Uint8Array(fs.readFileSync("Case.pdf")));
+  const { text } = await extractText(pdf, { mergePages: true });
+  assert.ok(text.length > 1000, "PDF text extracted");
+}
 console.log("selftest OK:", db.audit.length, "audit entries,", db.corrections.length, "correction(s)");

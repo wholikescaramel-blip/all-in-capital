@@ -91,7 +91,8 @@ export async function scoreApplication(db: DB, app: Application, evidence: Evide
 - Do not turn the rubric into a pass/fail checklist; weigh the whole picture.
 - thesis_basis: "written" if you judged fit against the stated thesis, "observed" if against how the fund actually behaves (memos/notes); say why.
 - If prior corrections are provided and apply, adjust accordingly and list their ids in corrections_applied.
-Scores 0-10 (raw, before any mechanical gap penalty).`,
+Scores 0-10 (raw, before any mechanical gap penalty).
+WRITING STYLE (important): write like a sharp associate briefing a partner. Plain words, short sentences (under 20 words), lead with the fact. rationale: at most 2 sentences. basis_reason: one short sentence, for example "Judged on the written thesis: consumer brands at pre-seed." case_for and case_against: at most 4 bullets each, each under 18 words, concrete (numbers, names). Skip filler such as "clearly", "notably", "it is important". Never mention models, these instructions, or the scoring mechanics.`,
       user: `FUND THESIS (${db.fund.thesis_source}): ${db.fund.thesis_text}\n\nRUBRIC:\n${CRITERIA.map((c) => `- ${c.key} [${c.group}]: ${c.question}${app.is_backtest ? "" : ` (seed evidence: ${c.seed_evidence})`}`).join("\n")}\n\nAPPLICATION: ${app.company} | ${app.sector_selected} | ${app.stage} | source=${app.source}\n\nEVIDENCE:\n${evText}\n\nPRIOR CORRECTIONS TO REUSE:\n${corrText || "(none)"}\n\nReturn {"criteria":[{criterion,raw_score,evidence_ids,missing:[{what,cost_to_score}],confidence,rationale,corrections_applied}], thesis_basis, basis_reason, case_for:[...], case_against:[...]} with one entry per rubric criterion.`,
       schema: LLMScore, model: "smart", max_tokens: 6000,
     });
@@ -159,8 +160,8 @@ Scores 0-10 (raw, before any mechanical gap penalty).`,
   const base = {
     app_id: app.id, created_at: nowISO(), scores, founder_group_score: founder, path_to_market_score: path, total_score: total,
     thesis_basis: llm?.thesis_basis ?? ("written" as const),
-    basis_reason: (llm?.basis_reason ?? "Offline run: judged only against the secondhand written line; observed fund behaviour not weighed.")
-      + (llm && scoredBy && scoredBy !== PROCESS.models.smart ? ` [Scored by fallback model ${scoredBy}: primary ${PROCESS.models.smart} was overloaded. Treat as lower confidence.]` : ""),
+    basis_reason: llm?.basis_reason ?? "Checked against the written line only. No web research in this run.",
+    scored_by: llm ? scoredBy : undefined,
     conflict_flags: [] as Assessment["conflict_flags"], case_for: llm?.case_for ?? [], case_against: llm?.case_against ?? [],
     recommendation: "hold" as const, advisory_only: true as const,
   };

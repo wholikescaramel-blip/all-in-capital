@@ -52,6 +52,6 @@ assert.ok(["Team","Read more","Apply"].every((n) => !names.includes(n)), "naviga
 assert.equal(names.filter((n) => /beta/i.test(n)).length, 1, "duplicates merged");
 assert.ok(!names.some((n) => /story/i.test(n)), "sentence-like link text is not a company name");
 assert.ok(/pre-seed/.test(site.thesis_text), "thesis read from page");
-assert.ok(site.gaps.some((g) => /link text and logo alt/.test(g)), "low-confidence extraction is logged as a gap");
+assert.ok(site.gaps.some((g) => /links and logos/.test(g)), "low-confidence extraction is logged as a gap");
 console.log("scraper tests OK. Portfolio read:", names.join(", "));
 server.close();

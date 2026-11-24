@@ -14,7 +14,7 @@ export const storeKind = () => (useNeon() ? "neon" : "local-file");
 export function emptyDB(): DB {
   return {
     applications: {}, states: {}, evidence: [], gaps: [], assessments: {}, reviews: [], corrections: [],
-    outreach: {}, audit: [], outbox: [], fund: { thesis_text: "", thesis_source: "", portfolio: [], gaps: [] }, backtest_runs: [],
+    outreach: {}, audit: [], pending: {}, outbox: [], fund: { thesis_text: "", thesis_source: "", portfolio: [], gaps: [] }, backtest_runs: [],
   };
 }
 

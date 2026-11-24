@@ -17,8 +17,8 @@ export function recommend(a: Assessment, gaps: Gap[]): Assessment {
   const caseAgainst = [...a.case_against];
   if (!caseFor.length) for (const s of sorted.slice(0, 2)) caseFor.push(`${label(s.criterion)}: ${s.score}/10. ${s.rationale}`);
   if (!caseAgainst.length) for (const s of sorted.slice(-2)) caseAgainst.push(`${label(s.criterion)}: ${s.score}/10. ${s.rationale}`);
-  if (overlap) caseAgainst.unshift(`Portfolio overlap: ${a.conflict_flags.filter((f) => f.severity === "overlap").map((f) => f.portfolio_company).join(", ")}. Held by default until a partner speaks to the portfolio founder.`);
+  if (overlap) caseAgainst.unshift(`Overlaps with ${a.conflict_flags.filter((f) => f.severity === "overlap").map((f) => f.portfolio_company).join(", ")}, already in the portfolio. On hold until someone speaks to that founder.`);
   const gapCrits = [...new Set(gaps.filter((g) => g.app_id === a.app_id).map((g) => label(g.criterion)))];
-  if (gapCrits.length) caseAgainst.push(`Open gaps (scores penalised, not skipped): ${gapCrits.join(", ")}.`);
+  if (gapCrits.length) caseAgainst.push(`Missing info (each gap lowers the score): ${gapCrits.join(", ")}.`);
   return { ...a, recommendation: rec, case_for: caseFor, case_against: caseAgainst };
 }
