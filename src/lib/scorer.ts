@@ -94,7 +94,7 @@ export async function scoreApplication(db: DB, app: Application, evidence: Evide
 Scores 0-10 (raw, before any mechanical gap penalty).
 WRITING STYLE (important): write like a sharp associate briefing a partner. Plain words, short sentences (under 20 words), lead with the fact. rationale: at most 2 sentences. basis_reason: one short sentence, for example "Judged on the written thesis: consumer brands at pre-seed." case_for and case_against: at most 4 bullets each, each under 18 words, concrete (numbers, names). Skip filler such as "clearly", "notably", "it is important". Never mention models, these instructions, or the scoring mechanics.`,
       user: `FUND THESIS (${db.fund.thesis_source}): ${db.fund.thesis_text}\n\nRUBRIC:\n${CRITERIA.map((c) => `- ${c.key} [${c.group}]: ${c.question}${app.is_backtest ? "" : ` (seed evidence: ${c.seed_evidence})`}`).join("\n")}\n\nAPPLICATION: ${app.company} | ${app.sector_selected} | ${app.stage} | source=${app.source}\n\nEVIDENCE:\n${evText}\n\nPRIOR CORRECTIONS TO REUSE:\n${corrText || "(none)"}\n\nReturn {"criteria":[{criterion,raw_score,evidence_ids,missing:[{what,cost_to_score}],confidence,rationale,corrections_applied}], thesis_basis, basis_reason, case_for:[...], case_against:[...]} with one entry per rubric criterion.`,
-      schema: LLMScore, model: "smart", max_tokens: 6000,
+      schema: LLMScore, model: "smart", max_tokens: 16000,
     });
     scoredBy = lastModelUsed;
   }
