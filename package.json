@@ -19,7 +19,8 @@
     "status": "tsx --env-file-if-exists=.env.local scripts/status.ts",
     "refresh-fund": "tsx --env-file-if-exists=.env.local scripts/refresh-fund.ts",
     "try-email": "tsx --env-file-if-exists=.env.local scripts/try-email.ts",
-    "rescore": "tsx --env-file-if-exists=.env.local scripts/rescore.ts"
+    "rescore": "tsx --env-file-if-exists=.env.local scripts/rescore.ts",
+    "stability": "tsx --env-file-if-exists=.env.local scripts/stability.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

@@ -99,6 +99,25 @@ assert.equal(db.states[acme], "AWAITING_REVIEW"); assert.ok(db.assessments[acme]
 assert.equal((await createFromFiles(db, [{ name: "Acme_Form.pdf", text: form }])).skipped.length, 1, "adding the same company twice is skipped");
 await assert.rejects(() => createFromName(db, "http://127.0.0.1/admin"), /public website/);
 
+// ---- scoring rules: severity, not bullet count; candour fixed; anchors on every criterion ----
+{
+  const { applyMissingPenalty } = await import("../src/lib/scorer");
+  const { CRITERIA, MISSING_PENALTY, NO_EVIDENCE_CAP } = await import("../src/config/rubric");
+  assert.equal(applyMissingPenalty(8, "none", 3), 8);
+  assert.equal(applyMissingPenalty(8, "some", 3), 7);
+  assert.equal(applyMissingPenalty(8, "key", 3), 6);
+  assert.equal(applyMissingPenalty(8, "none", 0), NO_EVIDENCE_CAP, "no evidence at all is capped");
+  assert.deepEqual(MISSING_PENALTY, { none: 0, some: 1, key: 2 });
+  assert.equal(applyMissingPenalty.length, 3, "the penalty takes a severity, never a count of listed items");
+  for (const c of CRITERIA) assert.ok(c.anchors.low && c.anchors.mid && c.anchors.high, `${c.key} has anchors`);
+  const cand = CRITERIA.find((c) => c.key === "candour")!;
+  assert.equal(cand.fixed_score, 5);
+  for (const asm of Object.values(db.assessments)) {
+    const s = asm.scores.find((x) => x.criterion === "candour")!;
+    assert.equal(s.score, 5, "candour is neutral, not marked down"); assert.equal(s.confidence, "low"); assert.ok(s.gap_ids.length > 0, "and flagged as needing the call");
+  }
+}
+
 // ---- sectors: commerce infrastructure is its own bucket ----
 {
   const { normaliseSector } = await import("../src/lib/ingest");

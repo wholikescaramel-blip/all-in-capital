@@ -31,7 +31,7 @@ export async function conflictCheck(db: DB, app: Application): Promise<Flag[]> {
       const r = await completeJSON({
         system: "You check a startup against an investor's portfolio for sector or product overlap. Err on the side of flagging: a false alarm is better than a miss. Flag direct competitors AND adjacent products serving the same customer for the same job.",
         user: `STARTUP: ${app.company}. ${appText}\n\nPORTFOLIO:\n${portfolio.map((p) => `- ${p.name}: ${p.description}`).join("\n")}\n\nReturn {"overlaps":[{"portfolio_company","reason"}]} (empty list if none).`,
-        schema: z.object({ overlaps: z.array(z.object({ portfolio_company: z.string(), reason: z.string() })) }), model: "smart",
+        schema: z.object({ overlaps: z.array(z.object({ portfolio_company: z.string(), reason: z.string() })) }), model: "smart", temperature: 0,
       });
       for (const o of r.overlaps) flags.push({ ...o, severity: "overlap" });
     } catch { /* fall through to lexical check */ }

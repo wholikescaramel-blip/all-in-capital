@@ -1,5 +1,31 @@
 {
-  "version": 2,
+  "version": 3,
+  "v2_result": {
+    "run_at": "2026-11-24",
+    "report": "reports/backtest-live-1795500611242.md",
+    "agreement": "5/12",
+    "verdict": "NOT YET",
+    "note": "v2 stands as a failed run, next to v1. Funded companies scored 0.7 to 4.3 and none reached a take-call."
+  },
+  "v3_changes": {
+    "thresholds_changed": false,
+    "memos_and_labels_changed": false,
+    "why": "Rescoring the same ten live applications moved totals by up to 2.7 points and flipped suggestions. The cause was the scoring method, not the data: a point was taken off for every missing item the model chose to list, so a wordier answer scored lower. The low v1 and v2 backtest totals had the same cause.",
+    "scoring_fixes": [
+      "Penalty for missing information is now by severity (none 0, some 1, key 2 points), not one point per listed item. Missing information still always lowers a score.",
+      "The model is told to score the evidence that exists and NOT to lower the score for what is missing. Before, it was told both, so missing data was punished twice.",
+      "Every criterion has low, middle and high behaviour anchors (no company names), so a 6 means the same thing from run to run.",
+      "Candour cannot be seen in a deck. It is a fixed neutral 5, not marked down, and flagged as needing the call, instead of a guessed score plus a penalty.",
+      "Scoring and the overlap check run at temperature 0, so the same input gives the same answer.",
+      "Numeric fluency (do they know their numbers) and unit economics (what the numbers say) are separated in the criterion wording, to stop one fact counting twice."
+    ],
+    "unchanged_on_purpose": [
+      "Recommendation thresholds (take a call at 6.0 total and 5.0 in both groups; pass at 4.0 or below).",
+      "The overlap check stays over-sensitive. Overlap never changes a score; it only holds.",
+      "A hold still counts as a disagreement in the backtest."
+    ],
+    "known_limit": "Web search is still unavailable on the free key and memo inputs are one or two paragraphs. Reported either way, with v1 and v2 beside it."
+  },
   "v1_result": {
     "run_at": "2026-11-24",
     "report": "reports/backtest-live-1795499312351.md",

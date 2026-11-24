@@ -68,7 +68,7 @@ const textOf = (r: any): string => (r.candidates?.[0]?.content?.parts ?? []).map
 export let lastModelUsed = "";
 
 export async function completeJSON<T>(opts: {
-  system: string; user: string; schema: z.ZodType<T, z.ZodTypeDef, unknown>; model?: "fast" | "smart"; max_tokens?: number;
+  system: string; user: string; schema: z.ZodType<T, z.ZodTypeDef, unknown>; model?: "fast" | "smart"; max_tokens?: number; temperature?: number;
 }): Promise<T> {
   try {
     return await completeJSONWith(PROCESS.models[opts.model ?? "smart"], opts, (opts.model ?? "smart") === "smart" ? 3 : 6);
@@ -83,7 +83,7 @@ export async function completeJSON<T>(opts: {
 }
 
 async function completeJSONWith<T>(model: string, opts: {
-  system: string; user: string; schema: z.ZodType<T, z.ZodTypeDef, unknown>; max_tokens?: number;
+  system: string; user: string; schema: z.ZodType<T, z.ZodTypeDef, unknown>; max_tokens?: number; temperature?: number;
 }, failFastAfter = 6): Promise<T> {
   lastModelUsed = model;
   let lastErr: unknown;
@@ -91,7 +91,7 @@ async function completeJSONWith<T>(model: string, opts: {
     const r = await gemini(model, {
       systemInstruction: { parts: [{ text: opts.system }] },
       contents: [{ role: "user", parts: [{ text: opts.user + (attempt ? `\n\nYour previous output failed validation: ${String(lastErr)}. Fix it.` : "") }] }],
-      generationConfig: { responseMimeType: "application/json", maxOutputTokens: opts.max_tokens ?? 8000, temperature: 0.2 },
+      generationConfig: { responseMimeType: "application/json", maxOutputTokens: opts.max_tokens ?? 8000, temperature: opts.temperature ?? 0.2 },
     }, failFastAfter);
     try {
       return opts.schema.parse(extractJSON(textOf(r)));

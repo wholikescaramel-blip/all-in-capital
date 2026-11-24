@@ -27,7 +27,12 @@ const FundResearch = z.object({
 export async function researchFund(db: DB) {
   const gaps: string[] = [];
   db.fund.researched_at = nowISO();
-  const byName = new Map(SEED_PORTFOLIO.map((p) => [nameKey(p.name), { ...p }]));
+  // Start from what is already stored, so a refresh that can't read descriptions this time does not wipe the ones we have.
+  const byName = new Map<string, { name: string; description: string; source: string }>();
+  for (const p of [...SEED_PORTFOLIO, ...(db.fund.portfolio ?? [])]) {
+    const k = nameKey(p.name), prev = byName.get(k);
+    byName.set(k, { ...p, name: prev?.name ?? p.name, description: p.description || prev?.description || "" });
+  }
   let thesis = "", thesisSource = "";
 
   // 1. Read the fund's own site directly (polite scraper). Primary source for thesis and portfolio.
