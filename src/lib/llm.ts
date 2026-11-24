@@ -87,7 +87,7 @@ async function completeJSONWith<T>(model: string, opts: {
 }, failFastAfter = 6): Promise<T> {
   lastModelUsed = model;
   let lastErr: unknown;
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     const r = await gemini(model, {
       systemInstruction: { parts: [{ text: opts.system }] },
       contents: [{ role: "user", parts: [{ text: opts.user + (attempt ? `\n\nYour previous output failed validation: ${String(lastErr)}. Fix it.` : "") }] }],
