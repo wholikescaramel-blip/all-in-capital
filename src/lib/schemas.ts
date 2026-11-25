@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { PortfolioProfile } from "./portfolio";
 
 export const Sector = z.enum(["fintech", "deeptech", "consumer_tech", "consumer_brand", "commerce_infrastructure", "other"]);
 export type Sector = z.infer<typeof Sector>;
@@ -187,6 +188,6 @@ export type DB = {
   style_examples?: { id: string; sector: string; subject: string; body: string; at: string }[]; // emails the reviewer edited and sent
   google?: { email: string; refresh_token: string; connected_at: string }; // the one connected Gmail and Calendar account
   outbox: { at: string; to: string; subject: string; body: string; app_id: string; mock: true }[];
-  fund: { thesis_text: string; thesis_source: string; portfolio: { name: string; description: string; source: string }[]; gaps: string[]; researched_at?: string; sources?: { url: string; fetched_at: string; note: string }[] };
+  fund: { thesis_text: string; thesis_source: string; portfolio: { name: string; description: string; source: string }[]; gaps: string[]; researched_at?: string; sources?: { url: string; fetched_at: string; note: string }[]; profiles?: PortfolioProfile[] };
   backtest_runs: unknown[];
 };

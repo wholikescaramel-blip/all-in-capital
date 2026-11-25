@@ -94,3 +94,19 @@ a.tab.on { color: var(--fg); background: color-mix(in srgb, var(--accent) 12%, t
 .mailrow { display: grid; grid-template-columns: 1.2fr 2fr auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel); text-decoration: none; margin: 8px 0; transition: transform .2s, border-color .2s; }
 .mailrow:hover { transform: translateY(-2px); border-color: var(--line-strong); }
 @media (max-width: 760px) { .mailrow { grid-template-columns: 1fr; } .msg.out, .msg.in { margin-left: 0; margin-right: 0; } }
+
+/* ---------- pipeline dashboard and portfolio ---------- */
+.flow { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.stage { border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; background: var(--panel); opacity: .6; }
+.stage.has { opacity: 1; border-color: var(--line-strong); }
+.stagehead { display: flex; align-items: baseline; gap: 8px; } .stagehead b { font-family: var(--serif); font-size: 1.6rem; font-weight: 400; letter-spacing: -.02em; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+a.chip { text-decoration: none; font-size: 12.5px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: color-mix(in srgb, var(--fg) 5%, transparent); transition: border-color .15s; }
+a.chip:hover, a.chip.on { border-color: var(--accent); color: var(--accent); }
+.distrow { display: grid; grid-template-columns: 150px 1fr 28px auto; gap: 10px; align-items: center; margin: 10px 0; font-size: 13.5px; }
+.distbar { height: 6px; border-radius: 6px; background: color-mix(in srgb, var(--fg) 8%, transparent); overflow: hidden; } .distbar i { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
+.callrow { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13.5px; } .callrow .links { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: 12px; align-items: center; }
+.pcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-top: 18px; } .pcard { margin: 0; } .pcard p { margin: 8px 0 0; font-size: 14px; }
+.pcard .facts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; } .pcard .facts span { font-size: 11.5px; padding: 2px 9px; border-radius: 999px; background: color-mix(in srgb, var(--fg) 7%, transparent); color: var(--muted); }
+.pcard .foot { margin-top: 12px; font-size: 13px; }
+@media (max-width: 640px) { .distrow { grid-template-columns: 110px 1fr 24px; } .distrow .muted { grid-column: 1 / -1; } }

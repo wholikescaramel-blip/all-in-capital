@@ -26,6 +26,7 @@
     "setup:webhook": "tsx --env-file-if-exists=.env.local scripts/setup-resend-webhook.ts",
     "dev:local": "node scripts/dev-local.mjs",
     "check:google": "tsx --env-file-if-exists=.env.local scripts/check-google.ts",
+    "refresh-portfolio": "tsx --env-file-if-exists=.env.local scripts/refresh-portfolio.ts",
     "schedule": "tsx --env-file-if-exists=.env.local scripts/schedule.ts",
     "test:sched": "tsx scripts/schedtest.ts",
     "try-reply": "tsx --env-file-if-exists=.env.local scripts/try-reply.ts"
