@@ -81,7 +81,7 @@ async function sentApp(db: DB, company: string, sector = "Consumer brands", foun
   let n = 0; while (!(await advance(db, id)).done && n++ < 10);
   submitReview(db, id, "partner", "take_call", "Testing the mail loop");
   await draftEmail(db, id);
-  approveAndSend(db, id, "associate", t0);
+  await approveAndSend(db, id, "associate", t0);
   return id;
 }
 

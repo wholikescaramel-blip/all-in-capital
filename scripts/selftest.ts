@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { ingestDirectory } from "../src/lib/ingest";
 import { emptyDB, transition } from "../src/lib/store";
 import { processApplication, submitReview } from "../src/lib/pipeline";
-import { approveAndSend, draftEmail, tick } from "../src/lib/outreach";
+import { approveAndSend, draftEmail, sendFollowup, tick } from "../src/lib/outreach";
 import { handleReply } from "../src/lib/replies";
 import { CriterionScore } from "../src/lib/schemas";
 
@@ -45,11 +45,18 @@ await assert.rejects(() => draftEmail(db, a4.id)); // only human-approved take_c
 await draftEmail(db, a3.id);
 assert.deepEqual(db.outreach[a3.id].attendees, ["associate", "deeptech_partner"], "deeptech: the partner joins");
 const t0 = new Date("2026-12-01T05:00:00Z");
-approveAndSend(db, a3.id, "associate", t0);
+await approveAndSend(db, a3.id, "associate", t0);
 assert.equal(db.states[a3.id], "AWAITING_REPLY");
 let now = t0;
-for (let i = 1; i <= 3; i++) { now = new Date(now.getTime() + 3 * 86400000); tick(db, now); assert.equal(db.outreach[a3.id].followups_sent, i); }
-now = new Date(now.getTime() + 3 * 86400000); tick(db, now);
+for (let i = 1; i <= 3; i++) {
+  now = new Date(now.getTime() + 5 * 86400000); // more than three working days each time
+  await tick(db, now);
+  assert.ok(db.outreach[a3.id].prepared_followup, "a follow-up is prepared, not sent");
+  assert.equal(db.outreach[a3.id].followups_sent, i - 1, "nothing was sent on its own");
+  await sendFollowup(db, a3.id, now); // a person sends it with one click
+  assert.equal(db.outreach[a3.id].followups_sent, i);
+}
+now = new Date(now.getTime() + 5 * 86400000); await tick(db, now);
 assert.equal(db.states[a3.id], "FLAGGED", "flagged after 3 follow-ups, not auto-rejected");
 
 // Outreach B (consumer, replies yes): Tue/Thu afternoon slots, loop until agreed, then SCHEDULED.
@@ -57,7 +64,7 @@ db.applications[a5.id].sector = "consumer_tech";
 submitReview(db, a5.id, "partner", "take_call", "Testing booking path");
 await draftEmail(db, a5.id);
 assert.deepEqual(db.outreach[a5.id].attendees, ["associate"]);
-approveAndSend(db, a5.id, "associate", t0);
+await approveAndSend(db, a5.id, "associate", t0);
 await handleReply(db, a5.id, "Yes, happy to talk!", t0);
 assert.equal(db.states[a5.id], "SCHEDULING");
 for (const s of db.outreach[a5.id].proposed_slots) {

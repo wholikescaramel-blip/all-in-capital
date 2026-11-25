@@ -128,7 +128,8 @@ export type Message = {
   id: string; at: string; dir: "out" | "in";
   kind: "invite" | "followup" | "slots" | "confirmation" | "reply" | "other";
   from: string; to: string; subject: string; body: string;
-  via: "mock" | "resend" | "simulated" | "pasted" | "inbound";
+  via: "mock" | "resend" | "gmail" | "simulated" | "pasted" | "inbound";
+  thread_id?: string; message_id_header?: string;
   status: "recorded" | "queued" | "sent" | "failed" | "received";
   provider_id?: string; error?: string; extracted?: Extraction;
 };
@@ -146,7 +147,12 @@ export const Outreach = z.object({
   chat: z.array(z.object({ at: z.string(), who: z.enum(["human", "ai"]), text: z.string() })).default([]),
   thread: z.array(z.any()).default([]), // Message[]: every email in and out, in order
   phone: z.string().optional(), // taken from the founder's reply, in international format
-  meeting: z.object({ start: z.string(), end: z.string(), provider: z.enum(["cal", "mock"]), uid: z.string().optional(), url: z.string().optional(), attendees: z.array(z.string()) }).optional(),
+  meeting: z.object({ start: z.string(), end: z.string(), provider: z.enum(["cal", "mock", "google"]), uid: z.string().optional(), url: z.string().optional(), calendar_url: z.string().optional(), attendees: z.array(z.string()) }).optional(),
+  ai_slots: z.array(z.string()).optional(), // the two times the draft step wrote, so the reviewer's own edited times can be told apart
+  thread_id: z.string().optional(), // Gmail thread the invite went out in
+  claim: z.object({ at: z.string(), by: z.string() }).optional(), // set while one scheduler run owns this thread
+  prepared_followup: z.object({ at: z.string(), subject: z.string(), body: z.string(), slots: z.array(z.string()) }).optional(), // written, never sent on its own
+  last_read_at: z.string().optional(),
   needs_human: z.string().optional(), // why a person has to look (a question, a decline)
   approved_by: z.string().optional(),
   followups_sent: z.number().default(0),
@@ -178,6 +184,8 @@ export type DB = {
   audit: AuditEntry[];
   pending: Record<string, { stage: number; flags?: { portfolio_company: string; reason: string; severity: "overlap" | "warning" }[]; error?: string }>; // applications mid-processing
   draft_notes: DraftNote[];
+  style_examples?: { id: string; sector: string; subject: string; body: string; at: string }[]; // emails the reviewer edited and sent
+  google?: { email: string; refresh_token: string; connected_at: string }; // the one connected Gmail and Calendar account
   outbox: { at: string; to: string; subject: string; body: string; app_id: string; mock: true }[];
   fund: { thesis_text: string; thesis_source: string; portfolio: { name: string; description: string; source: string }[]; gaps: string[]; researched_at?: string; sources?: { url: string; fetched_at: string; note: string }[] };
   backtest_runs: unknown[];

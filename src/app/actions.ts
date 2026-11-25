@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { extractText, getDocumentProxy } from "unpdf";
 import { loadDB, saveDB } from "@/lib/store";
 import { submitReview } from "@/lib/pipeline";
-import { approveAndSend, draftEmail, tick } from "@/lib/outreach";
+import { approveAndSend, draftEmail, sendFollowup, tick } from "@/lib/outreach";
 import { processReply } from "@/lib/replies";
 import { flushMail } from "@/lib/mail";
 import { passHash, requireUnlocked } from "@/lib/guard";
@@ -39,7 +39,8 @@ export async function draftAction(id: string) { return run(id, (db) => draftEmai
 export async function saveDraftAction(id: string, body: string) { return run(id, (db) => saveEdits(db, id, body)); }
 export async function reviseAction(id: string, instruction: string) { return run(id, (db) => reviseDraft(db, id, instruction)); }
 export async function restoreAction(id: string, n: number) { return run(id, (db) => restoreVersion(db, id, n)); }
-export async function sendAction(id: string, approver: string) { return run(id, (db) => approveAndSend(db, id, approver), true); }
+export async function sendAction(id: string, approver: string, confirmTo?: string) { return run(id, (db) => approveAndSend(db, id, approver, new Date(), { expectTo: confirmTo }), true); }
+export async function sendFollowupAction(id: string) { return run(id, (db) => sendFollowup(db, id), true); }
 // ---------- replies: simulated, pasted, or received ----------
 export async function founderDraftAction(id: string, scenario: string): Promise<{ text?: string; error?: string }> {
   const db = await loadDB();
@@ -69,7 +70,7 @@ export async function unlockAction(_: unknown, fd: FormData): Promise<{ error?: 
 export async function tickAction(days: number) {
   const db = await loadDB();
   await requireUnlocked();
-  tick(db, new Date(Date.now() + days * 86400000));
+  await tick(db, new Date(Date.now() + days * 86400000));
   await flushMail(db);
   await saveDB(db);
   revalidatePath("/");
@@ -134,3 +135,12 @@ export async function advanceAction(id: string): Promise<{ done?: boolean; stage
 }
 
 export async function removeNoteAction(appId: string, noteId: string) { return run(appId, (db) => removeNote(db, noteId)); }
+
+// "Check now": read replies and book for one application (or all). Locked behind the passcode whenever real mail is on.
+export async function checkRepliesAction(id?: string) {
+  await requireUnlocked();
+  const { runScheduler } = await import("@/lib/scheduler");
+  const r = await runScheduler({ only: id });
+  revalidatePath("/"); if (id) revalidatePath(`/apps/${id}`);
+  return r;
+}

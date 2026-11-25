@@ -2,6 +2,7 @@ import type { DB, Message } from "./schemas";
 import { nowISO, uid } from "./store";
 import { PROCESS } from "../config/process";
 import { getOut, pickContact } from "./emailflow";
+import { googleProviders, googleReady, mailProviderName, type Providers } from "./providers";
 
 // Three modes, set by MAIL_MODE:
 //   mock : nothing leaves the app. Mail is only recorded in the thread. (default)
@@ -21,6 +22,13 @@ const REF = /\[ref:([a-z0-9-]+)\]/i;
 export const refTag = (appId: string) => `[ref:${appId}]`;
 export const parseRef = (subject: string) => subject.match(REF)?.[1]?.toLowerCase();
 
+// Who a letter really goes to right now: the test inbox in test mode, the founder's address otherwise.
+export function recipientOf(db: DB, appId: string): string {
+  const o = getOut(db, appId);
+  const contact = o.contact ?? pickContact(db.applications[appId]);
+  return mailMode() === "test" ? process.env.MAIL_TEST_RECIPIENT! : contact.email;
+}
+
 // Record an outgoing email in the application's thread. In mock mode it is final; otherwise flushMail() sends it.
 export function queueMail(db: DB, appId: string, kind: Message["kind"], subject: string, body: string): Message {
   const o = getOut(db, appId);
@@ -29,9 +37,9 @@ export function queueMail(db: DB, appId: string, kind: Message["kind"], subject:
   const to = mode === "test" ? process.env.MAIL_TEST_RECIPIENT! : contact.email;
   const msg: Message = {
     id: uid("msg"), at: nowISO(), dir: "out", kind,
-    from: `${PROCESS.fund_name} <${FROM()}>`, to,
+    from: `${PROCESS.fund_name} <${mailProviderName() === "google" && db.google?.email ? db.google.email : FROM()}>`, to,
     subject: mode === "mock" ? subject : `${subject.replace(REF, "").trim()} ${refTag(appId)}`, // the tag lets a reply find its application
-    body, via: mode === "mock" ? "mock" : "resend", status: mode === "mock" ? "recorded" : "queued",
+    body, via: mode === "mock" ? "mock" : mailProviderName() === "google" ? "gmail" : "resend", status: mode === "mock" ? "recorded" : "queued",
   };
   o.thread.push(msg);
   db.outbox.push({ at: msg.at, to, subject: msg.subject, body, app_id: appId, mock: true });
@@ -39,12 +47,22 @@ export function queueMail(db: DB, appId: string, kind: Message["kind"], subject:
 }
 
 // Send everything queued. A failure is written onto the message (and shown in the thread), never thrown.
-export async function flushMail(db: DB): Promise<{ sent: number; failed: number }> {
+export async function flushMail(db: DB, opts: { only?: string; providers?: Providers } = {}): Promise<{ sent: number; failed: number }> {
   let sent = 0, failed = 0;
   const key = process.env.RESEND_API_KEY;
   for (const o of Object.values(db.outreach)) {
+    if (opts.only && o.app_id !== opts.only) continue;
     for (const m of (o.thread ?? []) as Message[]) {
       if (m.status !== "queued") continue;
+      if (m.via === "gmail") { // sent from the connected Gmail account, in the same thread as everything before it
+        try {
+          if (!opts.providers && !googleReady(db)) throw new Error("Gmail is not connected. Open /api/auth/google once, signed in as the fund mailbox.");
+          const lastIn = [...(o.thread as Message[])].reverse().find((x) => x.dir === "in" && x.message_id_header);
+          const r = await (opts.providers ?? googleProviders(db)).mail.send({ to: m.to, subject: m.subject, body: m.body, threadId: o.thread_id, inReplyTo: lastIn?.message_id_header });
+          m.status = "sent"; m.provider_id = r.id; m.thread_id = r.threadId; o.thread_id ??= r.threadId; sent++;
+        } catch (e) { m.status = "failed"; m.error = String((e as Error).message).slice(0, 200); failed++; }
+        continue;
+      }
       if (!key) { m.status = "failed"; m.error = "No RESEND_API_KEY is set."; failed++; continue; }
       try {
         const res = await fetch("https://api.resend.com/emails", {

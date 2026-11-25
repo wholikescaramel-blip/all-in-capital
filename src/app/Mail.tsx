@@ -3,7 +3,7 @@ import { Pill } from "./ui";
 import { CancelMeeting } from "./FounderSim";
 
 const ist = (iso: string) => new Date(iso).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" });
-const VIA: Record<Message["via"], string> = { mock: "recorded only", resend: "via Resend", simulated: "simulated", pasted: "pasted", inbound: "received by Resend" };
+const VIA: Record<Message["via"], string> = { mock: "recorded only", resend: "via Resend", gmail: "via Gmail", simulated: "simulated", pasted: "pasted", inbound: "received by Resend" };
 const INTENT: Record<string, string> = { yes: "wants the call", no: "declined", reschedule: "wants another time", question: "asked a question", unclear: "no clear answer" };
 
 // Every email in and out for one application, in order, with what we read from each reply.

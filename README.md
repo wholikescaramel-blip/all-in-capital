@@ -86,3 +86,16 @@ Setup, each a dry run unless you add `--create`:
 - `npm run setup:cal` creates a Tuesday and Thursday afternoon schedule and a 30-minute event type, then prints `CAL_EVENT_TYPE_ID`.
 - `npm run setup:webhook -- https://your-site` registers the inbound webhook (needs a Resend key that can manage webhooks and read received mail).
 - `npm run test:mail` tests all of this with the network stubbed.
+
+## Gmail, Google Calendar and automatic booking
+
+Set `MAIL_PROVIDER=google` and the Google values in `.env.example`. Open `/api/auth/google` once, signed in as the fund mailbox, to connect Gmail and Calendar.
+
+- **The invite** is checked by a linter (80 words, subject up to 7 words, first sentence cites a number, 1 or 2 questions, no praise, signed Riya, no banned words; up to 3 tries, each told what failed). It offers two real free Tuesday or Thursday afternoon times from the calendar, checked again at the moment of sending. Times the reviewer types by hand are sent as written. Names, emails, phone numbers and LinkedIn links never reach the model (a guard throws if they would).
+- **Check replies and book:** `npm run schedule` (or call `/api/cron/schedule` with `Authorization: Bearer <CRON_SECRET>`; no timer is set up). It uses no model. It reads each open thread, reads the founder's reply with plain rules, and:
+  - a pick of an offered time, or their own free weekday time between 10:00 and 19:00 India time within 30 days, is booked with a Meet link, the founder is invited, Aditya is added for deeptech, and a one-line confirmation goes in the same thread;
+  - a clash or out-of-hours time gets two new free times;
+  - anything else (a question, a decline, an unclear or foreign time zone) waits for a person.
+- Follow-ups are prepared after three working days and sent only by a click (`sendFollowup`).
+- Each thread is claimed before it is touched, and the calendar event id is fixed, so two runs cannot book twice.
+- `npm test` runs the self test, the mail test and `scripts/schedtest.ts` (the scheduler fixtures).

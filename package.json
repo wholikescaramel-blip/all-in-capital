@@ -12,7 +12,7 @@
     "preregister": "tsx scripts/preregister.ts",
     "backtest": "tsx --env-file-if-exists=.env.local scripts/backtest.ts",
     "tick": "tsx --env-file-if-exists=.env.local scripts/tick.ts",
-    "test": "tsx scripts/selftest.ts && tsx scripts/mailtest.ts",
+    "test": "tsx scripts/selftest.ts && tsx scripts/mailtest.ts && tsx scripts/schedtest.ts",
     "test:scraper": "tsx scripts/scraper-test.ts",
     "scrape:fund": "tsx --env-file-if-exists=.env.local scripts/scrape-fund.ts",
     "check": "tsx --env-file-if-exists=.env.local scripts/check-connections.ts",
@@ -25,6 +25,9 @@
     "setup:cal": "tsx --env-file-if-exists=.env.local scripts/setup-cal.ts",
     "setup:webhook": "tsx --env-file-if-exists=.env.local scripts/setup-resend-webhook.ts",
     "dev:local": "node scripts/dev-local.mjs",
+    "check:google": "tsx --env-file-if-exists=.env.local scripts/check-google.ts",
+    "schedule": "tsx --env-file-if-exists=.env.local scripts/schedule.ts",
+    "test:sched": "tsx scripts/schedtest.ts",
     "try-reply": "tsx --env-file-if-exists=.env.local scripts/try-reply.ts"
   },
   "dependencies": {

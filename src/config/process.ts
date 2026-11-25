@@ -12,6 +12,9 @@ export const PROCESS = {
   followups: { interval_days: 3, max: 3 },
   // Slots: Tuesday or Thursday afternoons, 30 minutes, India time.
   slots: { weekdays: [2, 4], start_hour: 14, end_hour: 18, minutes: 30, tz: "Asia/Kolkata", horizon_days: 21, propose: 3 },
+  // A time the founder suggests themselves is accepted on any weekday, 10:00 to 19:00 India time, within 30 days, if the calendar is free.
+  booking: { weekdays: [1, 2, 3, 4, 5], start_hour: 10, end_hour: 19, minutes: 30, horizon_days: 30, min_notice_hours: 12, reoffer_start_hour: 14, reoffer_end_hour: 18, reoffer_horizon_days: 14 },
+  signer: process.env.SIGNER_NAME ?? "Riya", // the invite is signed with this name, then the fund name on the next line
   // Roles, not accounts: the case's personas are modelled as roles, there is no login or per-person access.
   roles: ["associate", "partner"] as const,
   founder_domain_placeholder: "founder.example",

@@ -73,6 +73,58 @@ export async function saveDB(db: DB) {
   fs.renameSync(tmp, DB_PATH);
 }
 
+// ---- Thread-level writes. The scheduler runs on a timer while people use the site, so it never rewrites the whole document:
+// it claims one thread, and saves only that thread. The claim is a single conditional update, so two runs cannot both win it.
+const CLAIM_MINUTES = 10;
+const localLock = new Set<string>();
+
+export async function claimThread(appId: string, by: string, ttlMin = CLAIM_MINUTES): Promise<boolean> {
+  const claim = JSON.stringify({ at: new Date().toISOString(), by });
+  if (useNeon()) {
+    return withRetry(async () => {
+      await ensureTable();
+      const sql = neon(process.env.DATABASE_URL!);
+      const path = ["outreach", appId];
+      const rows = await sql`update app_state set data = jsonb_set(data, ${[...path, "claim"]}::text[], ${claim}::jsonb, true)
+        where id = 1 and (data #> ${path}::text[]) is not null
+          and ((data #>> ${[...path, "claim", "at"]}::text[]) is null or (data #>> ${[...path, "claim", "at"]}::text[])::timestamptz < now() - (${ttlMin} * interval '1 minute'))
+        returning 1 as ok`;
+      return rows.length === 1;
+    });
+  }
+  if (localLock.has(appId)) return false;
+  localLock.add(appId);
+  return true;
+}
+
+export async function releaseThread(appId: string, by: string) {
+  if (useNeon()) {
+    await withRetry(async () => {
+      const sql = neon(process.env.DATABASE_URL!);
+      const path = ["outreach", appId];
+      await sql`update app_state set data = data #- ${[...path, "claim"]}::text[] where id = 1 and (data #>> ${[...path, "claim", "by"]}::text[]) = ${by}`;
+    });
+    return;
+  }
+  localLock.delete(appId);
+}
+
+// Save one application's outreach, its state, and any audit lines added since `auditFrom`. Nothing else in the document is touched.
+export async function saveThread(db: DB, appId: string, auditFrom: number) {
+  const o = { ...db.outreach[appId] }; // keeps the claim, so the thread stays owned until releaseThread
+  const st = db.states[appId], added = db.audit.slice(auditFrom);
+  if (useNeon()) {
+    await withRetry(async () => {
+      const sql = neon(process.env.DATABASE_URL!);
+      await sql`update app_state set data = jsonb_set(jsonb_set(jsonb_set(data, ${["outreach", appId]}::text[], ${JSON.stringify(o)}::jsonb, true), ${["states", appId]}::text[], ${JSON.stringify(st)}::jsonb, true), '{audit}', coalesce(data->'audit', '[]'::jsonb) || ${JSON.stringify(added)}::jsonb) where id = 1`;
+    });
+    return;
+  }
+  const cur = await loadDB();
+  cur.outreach[appId] = o; cur.states[appId] = st; cur.audit.push(...added);
+  await saveDB(cur);
+}
+
 export const nowISO = () => new Date().toISOString();
 let counter = 0;
 export const uid = (p: string) => `${p}_${Date.now().toString(36)}${(counter++).toString(36)}${Math.random().toString(36).slice(2, 5)}`;
