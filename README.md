@@ -68,3 +68,21 @@ npm test              # offline end-to-end self-test (state machine, corrections
 - **Email**: after a reviewer approves a call, the AI writes the email from facts in the application, a second pass checks every claim against its source and rewrites if needed (up to 3 rounds), and the reviewer can ask for changes in a chat box. Every version and its fact-check is kept. Sending is mocked.
 - The contact is the founder named on the application. If no email was given, a stand-in address on a reserved .example domain is shown. Real addresses are never guessed.
 - Scripts: npm run status, npm run refresh-fund, npm run try-email -- grainkind (dry run, saves nothing).
+
+## Replies, Resend and Cal.com
+
+The **Mail** tab and each application page show every email in and out. Replies are read for a yes, a no, a question, time windows, and a phone number. A time that fits an open Tuesday or Thursday afternoon is booked; otherwise three new options go out. A question or a decline goes to a person.
+
+`MAIL_MODE` decides what is real:
+- `mock` (default): nothing leaves the app, and the calendar is the app own mock calendar.
+- `test`: real mail through Resend, but only to `MAIL_TEST_RECIPIENT`, and real bookings in Cal.com with that address as the attendee. Founders are never emailed.
+- `live`: mail goes to the contact address.
+
+In `test` and `live`, sending and booking need `ACTION_PASSCODE` (open `/unlock`), because the site is public.
+
+**Play the founder** (on an application waiting for a reply) drafts a reply as the founder, or takes a pasted one, and runs it through the same steps as a real email.
+
+Setup, each a dry run unless you add `--create`:
+- `npm run setup:cal` creates a Tuesday and Thursday afternoon schedule and a 30-minute event type, then prints `CAL_EVENT_TYPE_ID`.
+- `npm run setup:webhook -- https://your-site` registers the inbound webhook (needs a Resend key that can manage webhooks and read received mail).
+- `npm run test:mail` tests all of this with the network stubbed.

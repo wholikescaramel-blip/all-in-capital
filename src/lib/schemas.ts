@@ -123,6 +123,16 @@ export const DraftCheck = z.object({
   rounds: z.number(),
 });
 export type DraftCheck = z.infer<typeof DraftCheck>;
+export type Extraction = { intent: "yes" | "no" | "reschedule" | "question" | "unclear"; windows: { start: string; end: string }[]; phone?: string; question?: string; summary: string };
+export type Message = {
+  id: string; at: string; dir: "out" | "in";
+  kind: "invite" | "followup" | "slots" | "confirmation" | "reply" | "other";
+  from: string; to: string; subject: string; body: string;
+  via: "mock" | "resend" | "simulated" | "pasted" | "inbound";
+  status: "recorded" | "queued" | "sent" | "failed" | "received";
+  provider_id?: string; error?: string; extracted?: Extraction;
+};
+
 // What reviewers have asked for in earlier drafts, kept so future drafts start closer to what they want.
 export type DraftNote = { id: string; rule: string; raw: string[]; count: number; standing: boolean; created_at: string; last_seen: string };
 export type DraftVersion = { n: number; at: string; by: "ai" | "human"; instruction?: string; subject: string; body: string; check?: DraftCheck };
@@ -134,6 +144,10 @@ export const Outreach = z.object({
   contact: z.object({ name: z.string(), role: z.string().optional(), email: z.string(), email_source: z.enum(["form", "placeholder"]) }).optional(),
   versions: z.array(z.any()).default([]), // DraftVersion[]
   chat: z.array(z.object({ at: z.string(), who: z.enum(["human", "ai"]), text: z.string() })).default([]),
+  thread: z.array(z.any()).default([]), // Message[]: every email in and out, in order
+  phone: z.string().optional(), // taken from the founder's reply, in international format
+  meeting: z.object({ start: z.string(), end: z.string(), provider: z.enum(["cal", "mock"]), uid: z.string().optional(), url: z.string().optional(), attendees: z.array(z.string()) }).optional(),
+  needs_human: z.string().optional(), // why a person has to look (a question, a decline)
   approved_by: z.string().optional(),
   followups_sent: z.number().default(0),
   last_sent_at: z.string().optional(),

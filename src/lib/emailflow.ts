@@ -118,8 +118,8 @@ export async function checkDraft(body: string, facts: Fact[], rounds: number): P
   }
 }
 
-const getOut = (db: DB, id: string): Outreach => {
-  const o = (db.outreach[id] ??= { app_id: id, state: "NONE", followups_sent: 0, replies: [], proposed_slots: [], attendees: [], versions: [], chat: [] });
+export const getOut = (db: DB, id: string): Outreach => {
+  const o = (db.outreach[id] ??= { app_id: id, state: "NONE", followups_sent: 0, replies: [], proposed_slots: [], attendees: [], versions: [], chat: [], thread: [] });
   o.versions ??= []; o.chat ??= []; o.attendees ??= []; // records from older versions may lack these
   return o;
 };

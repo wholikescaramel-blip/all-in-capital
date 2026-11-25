@@ -1,17 +1,12 @@
-import type { DB, Outreach } from "./schemas";
-import { audit, nowISO, transition } from "./store";
+import type { DB } from "./schemas";
+import { audit, transition } from "./store";
 import { PROCESS } from "../config/process";
 import { completeJSON, hasLLM } from "./llm";
 import { z } from "zod";
-import { draftWithChecks, pickContact } from "./emailflow";
+import { draftWithChecks, getOut, pickContact } from "./emailflow";
+import { mailMode, queueMail } from "./mail";
 
-// ---------- Mock email: appended to db.outbox. No real message is ever sent. ----------
-export function mockSend(db: DB, to: string, subject: string, body: string, appId: string) {
-  db.outbox.push({ at: nowISO(), to, subject, body, app_id: appId, mock: true });
-}
-
-const getOut = (db: DB, id: string): Outreach => (db.outreach[id] ??= { app_id: id, state: "NONE", followups_sent: 0, replies: [], proposed_slots: [], attendees: [], versions: [], chat: [] });
-const founderEmail = (db: DB, id: string) => (getOut(db, id).contact ?? pickContact(db.applications[id])).email;
+export { getOut };
 
 // ---------- Step 9: draft (take_call only): write, fact-check, auto-fix ----------
 export async function draftEmail(db: DB, appId: string) {
@@ -26,21 +21,21 @@ export async function draftEmail(db: DB, appId: string) {
   return o;
 }
 
-// ---------- Step 8-9: human approves, then mock send ----------
+// ---------- Step 8-9: human approves, then the mail is queued (mock: recorded; test/live: sent by flushMail) ----------
 export function approveAndSend(db: DB, appId: string, approver: string, now = new Date()) {
   const o = getOut(db, appId);
   if (db.states[appId] !== "DRAFTED" || !o.draft) throw new Error("Nothing drafted to approve");
   o.approved_by = approver; o.state = "APPROVED_TO_SEND";
   transition(db, appId, "APPROVED_TO_SEND", approver);
-  mockSend(db, founderEmail(db, appId), o.draft.subject, o.draft.body, appId);
+  queueMail(db, appId, "invite", o.draft.subject, o.draft.body);
   o.state = "SENT"; o.last_sent_at = now.toISOString();
-  transition(db, appId, "SENT", "mock-mailer", "mock send, nothing left this machine");
+  transition(db, appId, "SENT", "mailer", mailMode() === "mock" ? "recorded only, nothing was sent" : "queued to send");
   o.state = "AWAITING_REPLY";
   transition(db, appId, "AWAITING_REPLY", "system");
   return o;
 }
 
-// ---------- Step 10: reply classification + follow-ups ----------
+// ---------- reply classification (used when no richer reading is possible) ----------
 export async function classifyReply(text: string): Promise<"yes" | "no" | "other"> {
   const t = text.toLowerCase();
   if (hasLLM()) {
@@ -54,29 +49,7 @@ export async function classifyReply(text: string): Promise<"yes" | "no" | "other
   return "other";
 }
 
-export async function handleReply(db: DB, appId: string, text: string, now = new Date()) {
-  const o = getOut(db, appId);
-  const cls = await classifyReply(text);
-  o.replies.push({ at: now.toISOString(), text, classification: cls });
-  const st = db.states[appId];
-  if (st === "AWAITING_REPLY") {
-    if (cls === "no") {
-      // Founder declined: still goes to a human, never silently closed.
-      transition(db, appId, "FLAGGED", "reply-handler", "founder declined; partner to confirm closure");
-      o.state = "FLAGGED_PARTNER";
-    } else {
-      o.proposed_slots = proposeSlots(db, appId, now);
-      transition(db, appId, "SCHEDULING", "reply-handler");
-      o.state = "SCHEDULING";
-      sendSlots(db, appId);
-    }
-  } else if (st === "SCHEDULING") {
-    await handleSchedulingReply(db, appId, text, cls, now);
-  }
-  return o;
-}
-
-// Advance simulated time: sends follow-ups at the configured interval, flags to a partner after the max. Never auto-rejects.
+// Advance simulated time: queues follow-ups at the configured interval, flags to a partner after the max. Never auto-rejects.
 export function tick(db: DB, now: Date) {
   const events: string[] = [];
   for (const [id, st] of Object.entries(db.states)) {
@@ -91,20 +64,28 @@ export function tick(db: DB, now: Date) {
       events.push(`${id}: flagged to partner`);
     } else {
       o.followups_sent += 1; o.last_sent_at = now.toISOString();
-      mockSend(db, founderEmail(db, id), `Re: ${o.draft?.subject}`, `Hi, a quick nudge on the call invitation (follow-up ${o.followups_sent} of ${PROCESS.followups.max}).`, id);
-      audit(db, id, "follow-up-handler", `follow-up ${o.followups_sent} sent (mock)`);
+      queueMail(db, id, "followup", `Re: ${o.draft?.subject}`, `Hi, a quick nudge on the call invitation (follow-up ${o.followups_sent} of ${PROCESS.followups.max}).`);
+      audit(db, id, "follow-up-handler", `follow-up ${o.followups_sent} queued`);
       events.push(`${id}: follow-up ${o.followups_sent}`);
     }
   }
   return events;
 }
 
-// ---------- Step 11: mocked calendar + booking ----------
+// ---------- calendar helpers: Tuesday/Thursday afternoons, India time ----------
 const IST_OFFSET_MIN = 330;
-const fmt = (d: Date) => new Date(d.getTime() + IST_OFFSET_MIN * 60000).toISOString().replace("T", " ").slice(0, 16) + " IST";
+export const fmt = (d: Date) => new Date(d.getTime() + IST_OFFSET_MIN * 60000).toISOString().replace("T", " ").slice(0, 16) + " IST";
+
+// A time is allowed when it is a Tuesday or Thursday, starts at or after the window opens and ends by the time it closes (India time).
+export function inAllowedWindow(iso: string) {
+  const s = PROCESS.slots;
+  const ist = new Date(new Date(iso).getTime() + IST_OFFSET_MIN * 60000);
+  const minutes = ist.getUTCHours() * 60 + ist.getUTCMinutes();
+  return s.weekdays.includes(ist.getUTCDay()) && minutes >= s.start_hour * 60 && minutes + s.minutes <= s.end_hour * 60;
+}
 
 // Mock calendar: deterministic busy blocks so conflicts and re-proposals are exercised.
-function isBusy(who: string[], start: Date, busy: Set<string>) {
+export function isBusy(who: string[], start: Date, busy: Set<string>) {
   return who.some((p) => busy.has(`${p}|${start.toISOString()}`));
 }
 
@@ -128,41 +109,16 @@ export function candidateSlots(now: Date, who: string[], busy = new Set<string>(
   return out;
 }
 
-const busyFor = (db: DB, selfId: string) => new Set(Object.values(db.outreach).filter((o) => o.app_id !== selfId && o.slot).flatMap((o) => o.attendees.map((p) => `${p}|${o.slot}`)));
+export const busyFor = (db: DB, selfId: string) => new Set(Object.values(db.outreach).filter((o) => o.app_id !== selfId && (o.slot || o.meeting)).flatMap((o) => o.attendees.map((p) => `${p}|${o.meeting?.start ?? o.slot}`)));
 
 export function proposeSlots(db: DB, appId: string, now: Date, exclude: string[] = []) {
   const o = getOut(db, appId);
   return candidateSlots(now, o.attendees, busyFor(db, appId), PROCESS.slots.propose, exclude);
 }
 
-function sendSlots(db: DB, appId: string) {
+export function sendSlots(db: DB, appId: string) {
   const o = getOut(db, appId);
   const list = o.proposed_slots.map((s, i) => `${i + 1}. ${fmt(new Date(s))}`).join("\n");
-  mockSend(db, founderEmail(db, appId), `Re: ${o.draft?.subject}`, `Great. Here are 30-minute options (Tuesday/Thursday afternoons):\n${list}\n\nReply with a number, or tell us what works.`, appId);
+  queueMail(db, appId, "slots", `Re: ${o.draft?.subject}`, `Great. Here are 30-minute options (Tuesday or Thursday afternoons, India time):\n${list}\n\nReply with a number, or tell us what works. And please add the best phone number to reach you on.`);
   audit(db, appId, "booking", `proposed ${o.proposed_slots.length} slots`);
-}
-
-async function handleSchedulingReply(db: DB, appId: string, text: string, cls: string, now: Date) {
-  const o = getOut(db, appId);
-  const pick = text.match(/\b([1-9])\b/);
-  const idx = pick ? parseInt(pick[1], 10) - 1 : -1;
-  if (cls !== "no" && o.proposed_slots[idx]) {
-    // Re-check at confirm time: the slot may have been taken since it was proposed.
-    if (isBusy(o.attendees, new Date(o.proposed_slots[idx]), busyFor(db, appId))) {
-      o.proposed_slots = proposeSlots(db, appId, now, o.proposed_slots);
-      sendSlots(db, appId);
-      return;
-    }
-    o.slot = o.proposed_slots[idx];
-    o.state = "MEETING_SCHEDULED";
-    transition(db, appId, "SCHEDULED", "booking", `MEETING_SCHEDULED ${fmt(new Date(o.slot))} with ${o.attendees.join(", ")}`);
-    mockSend(db, founderEmail(db, appId), "Confirmed", `Confirmed for ${fmt(new Date(o.slot))}. Calendar invite sent to ${o.attendees.join(", ")} (mock).`, appId);
-  } else if (cls === "no") {
-    transition(db, appId, "FLAGGED", "booking", "founder withdrew during scheduling; partner to confirm");
-    o.state = "FLAGGED_PARTNER";
-  } else {
-    // Founder proposed something else or was unclear: keep looping with fresh Tue/Thu options until they agree.
-    o.proposed_slots = proposeSlots(db, appId, now, o.proposed_slots);
-    sendSlots(db, appId);
-  }
 }

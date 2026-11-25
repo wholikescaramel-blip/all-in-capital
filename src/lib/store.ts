@@ -23,7 +23,7 @@ function normalise(db: DB): DB {
   db.draft_notes ??= [];
   db.pending ??= {};
   for (const o of Object.values(db.outreach)) {
-    o.versions ??= []; o.chat ??= []; o.attendees ??= []; o.replies ??= []; o.proposed_slots ??= []; o.followups_sent ??= 0;
+    o.thread ??= []; o.versions ??= []; o.chat ??= []; o.attendees ??= []; o.replies ??= []; o.proposed_slots ??= []; o.followups_sent ??= 0;
   }
   return db;
 }
@@ -89,7 +89,7 @@ const ALLOWED: Record<AppState, AppState[]> = {
   SENT: ["AWAITING_REPLY", "FLAGGED"],
   AWAITING_REPLY: ["SCHEDULING", "FLAGGED", "DECIDED_PASS"],
   SCHEDULING: ["SCHEDULED", "FLAGGED"],
-  SCHEDULED: [],
+  SCHEDULED: ["FLAGGED"], // a cancelled meeting goes back to a person
   FLAGGED: ["AWAITING_REVIEW", "AWAITING_REPLY", "SCHEDULING", "DECIDED_PASS", "ON_HOLD"], // a reviewer resolves flags
   DECIDED_PASS: ["AWAITING_REVIEW"], // reopen is allowed
   ON_HOLD: ["AWAITING_REVIEW", "APPROVED", "DECIDED_PASS"],

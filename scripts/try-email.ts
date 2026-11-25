@@ -5,7 +5,7 @@ import { draftWithChecks, reviseDraft } from "../src/lib/emailflow";
 const id = process.argv[2] ?? "grainkind";
 const db = await loadDB();
 if (!db.applications[id]) throw new Error(`No application ${id}`);
-db.outreach[id] = { app_id: id, state: "NONE", followups_sent: 0, replies: [], proposed_slots: [], attendees: [], versions: [], chat: [] };
+db.outreach[id] = { app_id: id, state: "NONE", followups_sent: 0, replies: [], proposed_slots: [], attendees: [], versions: [], chat: [], thread: [] };
 const t0 = Date.now();
 const v = await draftWithChecks(db, id);
 const show = (label: string, x: typeof v) => {

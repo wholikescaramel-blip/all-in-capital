@@ -12,7 +12,7 @@
     "preregister": "tsx scripts/preregister.ts",
     "backtest": "tsx --env-file-if-exists=.env.local scripts/backtest.ts",
     "tick": "tsx --env-file-if-exists=.env.local scripts/tick.ts",
-    "test": "tsx scripts/selftest.ts",
+    "test": "tsx scripts/selftest.ts && tsx scripts/mailtest.ts",
     "test:scraper": "tsx scripts/scraper-test.ts",
     "scrape:fund": "tsx --env-file-if-exists=.env.local scripts/scrape-fund.ts",
     "check": "tsx --env-file-if-exists=.env.local scripts/check-connections.ts",
@@ -20,7 +20,12 @@
     "refresh-fund": "tsx --env-file-if-exists=.env.local scripts/refresh-fund.ts",
     "try-email": "tsx --env-file-if-exists=.env.local scripts/try-email.ts",
     "rescore": "tsx --env-file-if-exists=.env.local scripts/rescore.ts",
-    "stability": "tsx --env-file-if-exists=.env.local scripts/stability.ts"
+    "stability": "tsx --env-file-if-exists=.env.local scripts/stability.ts",
+    "test:mail": "tsx scripts/mailtest.ts",
+    "setup:cal": "tsx --env-file-if-exists=.env.local scripts/setup-cal.ts",
+    "setup:webhook": "tsx --env-file-if-exists=.env.local scripts/setup-resend-webhook.ts",
+    "dev:local": "node scripts/dev-local.mjs",
+    "try-reply": "tsx --env-file-if-exists=.env.local scripts/try-reply.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

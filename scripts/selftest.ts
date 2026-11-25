@@ -1,9 +1,11 @@
+process.env.MAIL_MODE = "mock";
 process.env.SKIP_FUND_SCRAPE = "1"; // no network in the offline self-test
 import assert from "node:assert/strict";
 import { ingestDirectory } from "../src/lib/ingest";
 import { emptyDB, transition } from "../src/lib/store";
 import { processApplication, submitReview } from "../src/lib/pipeline";
-import { approveAndSend, draftEmail, handleReply, tick } from "../src/lib/outreach";
+import { approveAndSend, draftEmail, tick } from "../src/lib/outreach";
+import { handleReply } from "../src/lib/replies";
 import { CriterionScore } from "../src/lib/schemas";
 
 const db = emptyDB();

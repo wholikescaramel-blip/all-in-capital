@@ -82,3 +82,15 @@ a.tab.on { color: var(--fg); background: color-mix(in srgb, var(--accent) 12%, t
 .status .sep { opacity: .35; }
 .status .hl b { color: var(--accent-2); } .status .good b { color: var(--accent); } .status .warn b { color: var(--amber); }
 .sec-commerce_infrastructure { --c: #5fd0c8; }
+
+/* mail thread */
+.msg { padding: 12px 14px; margin: 10px 0; border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 55%, transparent); backdrop-filter: blur(8px); }
+.msg.out { margin-right: 10%; }
+.msg.in { margin-left: 10%; border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.msg .meta { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.msg .meta b { color: var(--fg); font-size: 13.5px; }
+.msg pre { white-space: pre-wrap; font: inherit; font-size: 14px; margin: 8px 0 0; line-height: 1.5; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; }
+.mailrow { display: grid; grid-template-columns: 1.2fr 2fr auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel); text-decoration: none; margin: 8px 0; transition: transform .2s, border-color .2s; }
+.mailrow:hover { transform: translateY(-2px); border-color: var(--line-strong); }
+@media (max-width: 760px) { .mailrow { grid-template-columns: 1fr; } .msg.out, .msg.in { margin-left: 0; margin-right: 0; } }

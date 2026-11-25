@@ -3,16 +3,23 @@ import { revalidatePath } from "next/cache";
 import { extractText, getDocumentProxy } from "unpdf";
 import { loadDB, saveDB } from "@/lib/store";
 import { submitReview } from "@/lib/pipeline";
-import { approveAndSend, draftEmail, handleReply, tick } from "@/lib/outreach";
+import { approveAndSend, draftEmail, tick } from "@/lib/outreach";
+import { processReply } from "@/lib/replies";
+import { flushMail } from "@/lib/mail";
+import { passHash, requireUnlocked } from "@/lib/guard";
+import { draftFounderReply, type Scenario } from "@/lib/foundersim";
+import { calCancel } from "@/lib/cal";
+import { getOut } from "@/lib/emailflow";
+import { cookies } from "next/headers";
 import { removeNote, reviseDraft, restoreVersion, saveEdits } from "@/lib/emailflow";
 import { advance, createFromFiles, createFromName, type AddResult } from "@/lib/addflow";
 import { CRITERIA } from "@/config/rubric";
 
 type Res = { ok?: boolean; error?: string };
 
-async function run(appId: string, fn: (db: Awaited<ReturnType<typeof loadDB>>) => unknown | Promise<unknown>): Promise<Res> {
+async function run(appId: string, fn: (db: Awaited<ReturnType<typeof loadDB>>) => unknown | Promise<unknown>, guard = false): Promise<Res> {
   const db = await loadDB();
-  try { await fn(db); await saveDB(db); } catch (e) { return { error: String((e as Error).message) }; }
+  try { if (guard) await requireUnlocked(); await fn(db); await flushMail(db); await saveDB(db); } catch (e) { return { error: String((e as Error).message) }; }
   revalidatePath("/"); revalidatePath(`/apps/${appId}`);
   return { ok: true };
 }
@@ -32,16 +39,42 @@ export async function draftAction(id: string) { return run(id, (db) => draftEmai
 export async function saveDraftAction(id: string, body: string) { return run(id, (db) => saveEdits(db, id, body)); }
 export async function reviseAction(id: string, instruction: string) { return run(id, (db) => reviseDraft(db, id, instruction)); }
 export async function restoreAction(id: string, n: number) { return run(id, (db) => restoreVersion(db, id, n)); }
-export async function sendAction(id: string, approver: string) { return run(id, (db) => approveAndSend(db, id, approver)); }
-export async function replyAction(_: unknown, fd: FormData): Promise<Res> {
-  const id = String(fd.get("id"));
-  return run(id, (db) => handleReply(db, id, String(fd.get("text"))));
+export async function sendAction(id: string, approver: string) { return run(id, (db) => approveAndSend(db, id, approver), true); }
+// ---------- replies: simulated, pasted, or received ----------
+export async function founderDraftAction(id: string, scenario: string): Promise<{ text?: string; error?: string }> {
+  const db = await loadDB();
+  try { return { text: await draftFounderReply(db, id, scenario as Scenario) }; } catch (e) { return { error: String((e as Error).message) }; }
+}
+export async function deliverReplyAction(id: string, text: string, via: "simulated" | "pasted") {
+  if (!text.trim()) return { error: "Write or paste a reply first." };
+  return run(id, (db) => processReply(db, id, text, { via }), true);
+}
+export async function cancelMeetingAction(id: string) {
+  return run(id, async (db) => {
+    const o = getOut(db, id);
+    if (!o.meeting) throw new Error("No meeting to cancel");
+    if (o.meeting.provider === "cal" && o.meeting.uid) await calCancel(o.meeting.uid);
+    o.meeting = undefined; o.slot = undefined; o.needs_human = "The meeting was cancelled. A person decides what happens next."; o.state = "FLAGGED_PARTNER";
+    const { transition } = await import("@/lib/store");
+    transition(db, id, "FLAGGED", "reviewer", "meeting cancelled");
+  }, true);
+}
+export async function unlockAction(_: unknown, fd: FormData): Promise<{ error?: string; ok?: boolean }> {
+  const pass = process.env.ACTION_PASSCODE;
+  if (!pass) return { error: "ACTION_PASSCODE is not set on the server." };
+  if (String(fd.get("passcode") ?? "") !== pass) return { error: "Wrong passcode." };
+  (await cookies()).set("aic_pass", passHash(pass), { httpOnly: true, secure: true, sameSite: "lax", maxAge: 12 * 3600, path: "/" });
+  return { ok: true };
 }
 export async function tickAction(days: number) {
   const db = await loadDB();
-  tick(db, new Date(Date.now() + days * 86400000)); await saveDB(db);
+  await requireUnlocked();
+  tick(db, new Date(Date.now() + days * 86400000));
+  await flushMail(db);
+  await saveDB(db);
   revalidatePath("/");
 }
+
 
 // ---------- adding applications ----------
 export type AddState = (Res & Partial<AddResult>) | null;

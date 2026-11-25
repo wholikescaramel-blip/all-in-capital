@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "triage-ui", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 3000 }
+    { "name": "triage-ui", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 3000 },
+    { "name": "local-demo", "runtimeExecutable": "node", "runtimeArgs": ["scripts/dev-local.mjs"], "port": 3100 }
   ]
 }

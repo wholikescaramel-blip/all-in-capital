@@ -1,6 +1,6 @@
 "use client";
 import { useActionState, useEffect, useState, useTransition } from "react";
-import { draftAction, removeNoteAction, replyAction, restoreAction, reviewAction, reviseAction, saveDraftAction, sendAction, tickAction } from "./actions";
+import { draftAction, removeNoteAction, restoreAction, reviewAction, reviseAction, saveDraftAction, sendAction, tickAction } from "./actions";
 
 type Crit = { key: string; label: string; score: number };
 type Res = { error?: string; ok?: boolean } | null;
@@ -42,7 +42,6 @@ export function OutreachPanel(p: { id: string; state: string; contact?: Contact;
   const [ask, setAsk] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, start] = useTransition();
-  const [res, act, pending] = useActionState(replyAction, null as Res);
   useEffect(() => setBody(p.draft?.body ?? ""), [p.draft?.body]);
 
   const current = [...p.versions].reverse().find((v) => v.body === p.draft?.body) ?? p.versions[p.versions.length - 1];
@@ -113,12 +112,8 @@ export function OutreachPanel(p: { id: string; state: string; contact?: Contact;
         </p>
       </>}
 
-      {["AWAITING_REPLY", "SCHEDULING"].includes(state) && <>
-        <p className="muted">Sent to {p.contact?.name} at {p.contact?.email} (not really sent). Follow-ups so far: {p.followups}. {state === "SCHEDULING" && `Proposed times: ${p.slots.join(" | ")}`}</p>
-        <form action={act} className="row"><input type="hidden" name="id" value={id} /><input name="text" placeholder="Type the founder's reply to test it (e.g. yes, or 2 works)" style={{ flex: 1 }} /><button disabled={pending}>Deliver reply</button></form></>}
-      {state === "SCHEDULED" && <p><b>Meeting booked</b> &middot; {p.slot}</p>}
-      {state === "FLAGGED" && <p className="bad">Flagged for a partner. Not rejected. A person decides next.</p>}
-      {(msg || res?.error) && <p className="bad">{msg || res?.error}</p>}
+      {["AWAITING_REPLY", "SCHEDULING"].includes(state) && <p className="muted">Waiting for {p.contact?.name}. Follow-ups so far: {p.followups}.{state === "SCHEDULING" && p.slots.length > 0 ? ` Times offered: ${p.slots.join(" | ")}.` : ""}</p>}
+      {msg && <p className="bad">{msg}</p>}
     </div>
   );
 }
