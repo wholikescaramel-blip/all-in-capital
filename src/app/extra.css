@@ -129,3 +129,20 @@ a.tile.plain { background: color-mix(in srgb, var(--fg) 10%, transparent); color
 .pcard .cat { display: inline-block; margin-top: 3px; font-size: 11.5px; font-weight: 600; padding: 1px 9px; border-radius: 999px; background: color-mix(in srgb, var(--brand) 18%, transparent); color: var(--fg); }
 .pcard.branded .facts span { background: color-mix(in srgb, var(--brand) 12%, transparent); }
 .pcard.branded a.inline { text-decoration-color: var(--brand); }
+
+/* calendar mockup */
+.calhead { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.calwrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); }
+.cal { display: grid; grid-template-columns: 52px repeat(5, minmax(150px, 1fr)); min-width: 840px; }
+.calcorner, .calday { padding: 10px 8px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); } .calday b { color: var(--fg); font-family: var(--serif); font-size: 1.15rem; font-weight: 400; margin-left: 4px; }
+.calday { border-left: 1px solid var(--line); } .calday.today { color: var(--accent); } .calday.today b { color: var(--accent); }
+.calhours { display: flex; flex-direction: column; } .calhours span { font-size: 11px; color: var(--muted); padding: 2px 8px; text-align: right; }
+.calcol { position: relative; border-left: 1px solid var(--line); background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--row) - 1px), var(--line) calc(var(--row) - 1px), var(--line) var(--row)); }
+.calwin { position: absolute; left: 0; right: 0; background: color-mix(in srgb, var(--accent) 7%, transparent); pointer-events: none; }
+.calnow { position: absolute; left: 0; right: 0; height: 2px; background: var(--red); z-index: 3; }
+.calblock { --c: var(--accent); position: absolute; left: 4px; right: 4px; z-index: 2; border-radius: 8px; padding: 3px 8px; font-size: 12px; line-height: 1.25; display: flex; align-items: center; gap: 8px; overflow: hidden; white-space: nowrap; }
+.calblock.booked { background: color-mix(in srgb, var(--c) 30%, var(--panel-solid)); border: 1px solid var(--c); } .calblock.booked b { color: var(--fg); }
+.calblock.offered { background: transparent; border: 1px dashed color-mix(in srgb, var(--c) 70%, transparent); color: var(--muted); }
+.calblock a { text-decoration: none; } .calblock span { color: var(--muted); font-size: 11.5px; } .calblock a.meet { margin-left: auto; font-size: 11px; padding: 0 7px; border-radius: 999px; background: var(--fg); color: var(--bg); }
+.key { display: inline-block; width: 12px; height: 12px; border-radius: 4px; vertical-align: -2px; margin: 0 4px 0 12px; } .key:first-child { margin-left: 0; }
+.key.booked { background: color-mix(in srgb, var(--accent) 40%, var(--panel-solid)); border: 1px solid var(--accent); } .key.offered { border: 1px dashed var(--muted); } .key.win { background: color-mix(in srgb, var(--accent) 12%, transparent); }

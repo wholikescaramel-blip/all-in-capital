@@ -3,6 +3,7 @@ import { REC_LABEL, SECTOR_LABEL } from "@/lib/plain";
 import { slotLabel } from "@/lib/slots";
 import type { Message } from "@/lib/schemas";
 import { Pill } from "../ui";
+import { CalendarGrid } from "../CalendarGrid";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,8 @@ const STAGES: { key: string; label: string; hint: string; states: string[] }[] =
 ];
 const ist = (iso: string) => new Date(iso).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 
-export default async function Dashboard() {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ w?: string }> }) {
+  const week = Math.max(-8, Math.min(8, parseInt((await searchParams).w ?? "0", 10) || 0));
   const db = await loadDB();
   const apps = Object.values(db.applications).filter((a) => !a.is_backtest).map((a) => ({ a, st: db.pending[a.id] ? "SCORING" : db.states[a.id] ?? "INGESTED", asm: db.assessments[a.id] }));
   const stages = STAGES.map((s) => ({ ...s, items: apps.filter((x) => s.states.includes(x.st)) }));
@@ -64,6 +66,9 @@ export default async function Dashboard() {
         </div>
       ))}
     </div>
+
+    <h3 className="section">Calendar</h3>
+    <CalendarGrid db={db} week={week} />
 
     <div className="grid2" style={{ marginTop: 28 }}>
       <div className="card">
