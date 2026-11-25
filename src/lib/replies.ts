@@ -7,6 +7,8 @@ import { busyFor, fmt, getOut, inAllowedWindow, isBusy, sendSlots } from "./outr
 import { mailMode, queueMail } from "./mail";
 import { calBook, calConfigured, calSlots } from "./cal";
 import { pickContact } from "./emailflow";
+import { googleProviders, googleReady, mailProviderName } from "./providers";
+import { handleMessage } from "./scheduler";
 
 const S = z.coerce.string();
 const IST = 330 * 60000;
@@ -213,6 +215,15 @@ export async function processReply(db: DB, appId: string, rawText: string, opts:
 
   const msg: Message = { id: uid("msg"), at: nowISO(), dir: "in", kind: "reply", from: opts.from ?? contact.email, to: PROCESS.fund_name, subject: `Re: ${o.draft?.subject ?? ""}`, body: text, via: opts.via, status: "received", provider_id: opts.provider_id };
   o.thread.push(msg);
+
+  // With Gmail and Google Calendar connected, a typed, pasted or simulated reply goes through the same plain-rule reader and the
+  // same booking code as a reply read from Gmail, so the meeting lands on the real calendar with a Meet link.
+  if (mailProviderName() === "google" && googleReady(db)) {
+    const stG = db.states[appId];
+    if (stG !== "AWAITING_REPLY" && stG !== "SCHEDULING") { audit(db, appId, "reply", `reply recorded while ${stG}; no action taken`); return o; }
+    await handleMessage(db, appId, msg, now, googleProviders(db));
+    return o;
+  }
 
   const ex = await extractReply(text, { now, offered });
   msg.extracted = ex;

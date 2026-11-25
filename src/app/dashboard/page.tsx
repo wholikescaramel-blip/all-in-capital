@@ -1,7 +1,6 @@
 import { loadDB } from "@/lib/store";
 import { REC_LABEL, SECTOR_LABEL } from "@/lib/plain";
 import { slotLabel } from "@/lib/slots";
-import { gmailThreadUrl } from "@/lib/links";
 import type { Message } from "@/lib/schemas";
 import { Pill } from "../ui";
 
@@ -34,7 +33,6 @@ export default async function Dashboard() {
   const booked = Object.values(db.outreach).filter((o) => o.meeting && db.states[o.app_id] === "SCHEDULED").sort((x, y) => x.meeting!.start.localeCompare(y.meeting!.start));
   const waiting = Object.values(db.outreach).filter((o) => ["AWAITING_REPLY", "SCHEDULING"].includes(db.states[o.app_id] ?? ""));
   const needYou = Object.values(db.outreach).filter((o) => o.needs_human && db.states[o.app_id] === "FLAGGED");
-  const mailbox = db.google?.email ?? process.env.MAILBOX_EMAIL;
   const threads = Object.values(db.outreach).filter((o) => (o.thread ?? []).length > 0 && db.applications[o.app_id]).map((o) => {
     const t = [...(o.thread as Message[])].sort((a, b) => a.at.localeCompare(b.at));
     return { o, last: t[t.length - 1], sent: t.filter((m) => m.dir === "out").length, got: t.filter((m) => m.dir === "in").length, failed: t.filter((m) => m.status === "failed").length };
@@ -89,7 +87,7 @@ export default async function Dashboard() {
           <div key={o.app_id} className="callrow">
             <a href={`/apps/${o.app_id}`} className="inline">{db.applications[o.app_id].company}</a>
             <span>{ist(o.meeting!.start)} IST{o.attendees.includes("deeptech_partner") ? ", with the deeptech partner" : ""}</span>
-            <span className="links">{o.meeting!.url && <a className="inline" href={o.meeting!.url} target="_blank" rel="noreferrer">Join Meet</a>}{o.meeting!.calendar_url && <a className="inline" href={o.meeting!.calendar_url} target="_blank" rel="noreferrer">Calendar</a>}{o.thread_id && <a className="inline" href={gmailThreadUrl(o.thread_id, mailbox)} target="_blank" rel="noreferrer">Gmail</a>}</span>
+            <span className="links">{o.meeting!.url && <a className="inline" href={o.meeting!.url} target="_blank" rel="noreferrer">Join Meet</a>}</span>
           </div>
         ))}
         <p className="muted" style={{ marginTop: 12 }}>{waiting.length} waiting for a reply &middot; {needYou.length} need a person</p>
@@ -113,9 +111,7 @@ export default async function Dashboard() {
             </div>
             <div className="links">
               <a className="inline" href={`/apps/${o.app_id}`}>Thread</a>
-              {o.thread_id && <a className="inline" href={gmailThreadUrl(o.thread_id, mailbox)} target="_blank" rel="noreferrer">Open in Gmail</a>}
               {o.meeting?.url && <a className="inline" href={o.meeting.url} target="_blank" rel="noreferrer">Join Meet</a>}
-              {o.meeting?.calendar_url && <a className="inline" href={o.meeting.calendar_url} target="_blank" rel="noreferrer">Open in Calendar</a>}
             </div>
           </div>
         </div>

@@ -82,7 +82,7 @@ async function offerNewTimes(db: DB, appId: string, now: Date, prov: Providers, 
 }
 
 // Handle one founder message. Returns what happened.
-async function handleMessage(db: DB, appId: string, msg: Message, now: Date, prov: Providers, persist?: () => Promise<void>): Promise<Outcome> {
+export async function handleMessage(db: DB, appId: string, msg: Message, now: Date, prov: Providers, persist?: () => Promise<void>): Promise<Outcome> {
   const o = getOut(db, appId);
   const p = parseReply(msg.body, { now, offered: o.proposed_slots });
   msg.extracted = toExtraction(p);

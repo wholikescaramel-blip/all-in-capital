@@ -1,18 +1,17 @@
 import type { Message, Outreach } from "@/lib/schemas";
 import { Pill } from "./ui";
 import { CancelMeeting } from "./FounderSim";
-import { gmailThreadUrl } from "@/lib/links";
 
 const ist = (iso: string) => new Date(iso).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" });
 const VIA: Record<Message["via"], string> = { mock: "recorded only", resend: "via Resend", gmail: "via Gmail", simulated: "simulated", pasted: "pasted", inbound: "received by Resend" };
 const INTENT: Record<string, string> = { yes: "wants the call", no: "declined", reschedule: "wants another time", question: "asked a question", unclear: "no clear answer" };
 
 // Every email in and out for one application, in order, with what we read from each reply.
-export function MailThread({ o, mailbox }: { o: Outreach; mailbox?: string }) {
+export function MailThread({ o }: { o: Outreach }) {
   const thread = [...((o.thread ?? []) as Message[])].sort((a, b) => a.at.localeCompare(b.at));
   return (
     <div className="card">
-      <h3>Mail {o.thread_id && <a className="inline" style={{ fontFamily: "var(--sans)", fontSize: 13 }} href={gmailThreadUrl(o.thread_id, mailbox)} target="_blank" rel="noreferrer">Open in Gmail</a>}</h3>
+      <h3>Mail</h3>
       {thread.length === 0 && <p className="muted">Nothing sent yet.</p>}
       {thread.map((m) => (
         <div key={m.id} className={`msg ${m.dir}`}>
@@ -51,7 +50,6 @@ export function MeetingCard({ id, o }: { id: string; o: Outreach }) {
             With {o.meeting.attendees.join(" and ").replace(/_/g, " ")}. {o.phone ? `Founder's number: ${o.phone}. ` : "No phone number yet. "}
             {o.meeting.provider === "google" ? "On the Google Calendar with a Meet link." : o.meeting.provider === "cal" ? "Booked in Cal.com." : "Recorded in the app's own calendar."}
             {o.meeting.url && <> <a href={o.meeting.url} className="inline" target="_blank" rel="noreferrer">Join Meet</a></>}
-            {o.meeting.calendar_url && <> <a href={o.meeting.calendar_url} className="inline" target="_blank" rel="noreferrer">Open in Calendar</a></>}
           </p>
           <CancelMeeting id={id} />
         </div>
