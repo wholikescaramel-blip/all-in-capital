@@ -5,6 +5,7 @@ import { completeJSON, hasLLM } from "./llm";
 import { PROCESS } from "../config/process";
 import { nameKey } from "./fundsite";
 import { nowISO } from "./store";
+import { brandColor } from "./brand";
 
 // Portfolio profiles: what each portfolio company actually is, read from the fund's portfolio page and then from the company's own site.
 // Same rules as the rest of the scraper: polite (robots.txt, pacing, caps), nothing circumvented, and every extracted fact must be
@@ -20,6 +21,7 @@ export type PortfolioProfile = {
   description: string; description_source: "company site" | "fund page" | "none";
   what?: string; hq?: string; founders: string[]; tags: string[];
   fund_page_url: string; pages: string[]; scraped_at: string; gaps: string[];
+  color?: string; color_source?: string; // brand colour taken from the company's logo
 };
 
 const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
@@ -96,7 +98,9 @@ export async function profileOne(base: { name: string; tag?: string; desc: strin
   const customer = (["B2B", "B2C", "B2B2C"] as const).find((c) => c === out?.customer) ?? "unclear";
   const hq = out?.hq && out.hq_evidence && snippetInText(out.hq_evidence, text) ? out.hq : undefined;
   const founders = (out?.founders ?? []).filter((n) => n.trim().length > 3 && snippetInText(n, text)).slice(0, 4);
+  const brand = website ? await brandColor(website, home?.html).catch(() => ({} as { color?: string; source?: string })) : {};
   return {
+    color: brand.color, color_source: brand.source,
     name: base.name, key: nameKey(base.name), website, website_source: wsrc, fund_tag: base.tag, category, customer,
     description, description_source: dsrc, what: out?.what ? clean(out.what) : undefined, hq, founders,
     tags: (out?.tags ?? []).map((t) => t.toLowerCase().slice(0, 24)).slice(0, 4), fund_page_url: fundPageUrl,
@@ -141,4 +145,16 @@ export async function enrichPortfolio(db: DB, opts: { only?: string[]; log?: (s:
   }
   db.fund.profiles = out;
   return out;
+}
+
+// Colours only, from the sites already stored on each profile. No model calls.
+export async function addBrandColors(db: DB, log: (s: string) => void = () => {}) {
+  const f = new Fetcher({ ...defaultScrapeConfig(), maxFetches: 60, timeBudgetMs: 280000 });
+  for (const p of db.fund.profiles ?? []) {
+    if (!p.website) continue;
+    const page = await f.get(p.website);
+    const b = await brandColor(p.website, page?.html).catch(() => ({} as { color?: string; source?: string }));
+    p.color = b.color; p.color_source = b.source;
+    log(`${p.name.padEnd(18)} ${b.color ?? "(none)"} ${b.source ?? ""}`);
+  }
 }

@@ -1,8 +1,10 @@
 import { loadDB } from "@/lib/store";
-import { Pill } from "../ui";
+import type { CSSProperties } from "react";
+import { inkOn } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 
+const brandVars = (c?: string) => (c ? { "--brand": c, "--on": inkOn(c) } : {}) as CSSProperties;
 const dom = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
 
 export default async function Portfolio({ searchParams }: { searchParams: Promise<{ c?: string }> }) {
@@ -22,6 +24,9 @@ export default async function Portfolio({ searchParams }: { searchParams: Promis
     <p className="muted" style={{ marginTop: 12 }}>Read from the fund&apos;s portfolio page and each company&apos;s own site. New applications are checked against all of them.</p>
 
     {all.length === 0 && <div className="card" style={{ marginTop: 20 }}>No profiles yet. Run <code>npm run refresh-portfolio</code> to read each company&apos;s site.</div>}
+    {all.length > 0 && <div className="wall" aria-label="Portfolio companies">
+      {all.map((p) => <a key={p.key} href={`#${p.key}`} className={`tile ${p.color ? "" : "plain"}`} style={brandVars(p.color)} title={p.name}>{p.name.replace(/^the\s+/i, "").slice(0, 2)}</a>)}
+    </div>}
     {all.length > 0 && <div className="chips" style={{ marginTop: 18 }}>
       <a href="/portfolio" className={`chip ${!c ? "on" : ""}`}>All {all.length}</a>
       {cats.map(([k, n]) => <a key={k} href={`/portfolio?c=${encodeURIComponent(k)}`} className={`chip ${c === k ? "on" : ""}`}>{k} {n}</a>)}
@@ -29,9 +34,10 @@ export default async function Portfolio({ searchParams }: { searchParams: Promis
 
     <div className="pcards">
       {list.map((p) => (
-        <article key={p.key} className="card pcard">
-          <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-            <h4>{p.name}</h4><Pill>{p.category}</Pill>
+        <article key={p.key} id={p.key} className={`card pcard ${p.color ? "branded" : ""}`} style={brandVars(p.color)}>
+          <div className="phead">
+            <span className="logo">{p.name.replace(/^the\s+/i, "").slice(0, 1)}</span>
+            <div><h4>{p.name}</h4><span className="cat">{p.category}</span></div>
           </div>
           <p>{p.description || <span className="muted">No description could be read.</span>}</p>
           {p.what && <p className="muted">{p.what}</p>}

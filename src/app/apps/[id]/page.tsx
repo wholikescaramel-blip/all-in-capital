@@ -107,7 +107,7 @@ export default async function AppPage({ params }: { params: Promise<{ id: string
       {["APPROVED", "DRAFTED", "AWAITING_REPLY", "SCHEDULING", "SCHEDULED", "FLAGGED"].includes(state) && (
         <OutreachPanel id={id} state={state} contact={out?.contact ?? pickContact(app)} draft={out?.draft} versions={(out?.versions ?? []) as never} chat={out?.chat ?? []} notes={db.draft_notes} followups={out?.followups_sent ?? 0}
           slot={out?.slot ? slotFmt(out.slot) : undefined} slots={(out?.proposed_slots ?? []).map(slotFmt)} />)}
-      {out && out.thread.length > 0 && <><MeetingCard id={id} o={out} /><MailThread o={out} /></>}
+      {out && out.thread.length > 0 && <><MeetingCard id={id} o={out} /><MailThread o={out} mailbox={db.google?.email ?? process.env.MAILBOX_EMAIL} /></>}
       {out && <FounderSim id={id} open={state === "AWAITING_REPLY" || state === "SCHEDULING"} />}
     </div>
 

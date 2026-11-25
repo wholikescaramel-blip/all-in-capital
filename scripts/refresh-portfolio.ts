@@ -1,8 +1,9 @@
 import { loadDB, saveDB } from "../src/lib/store";
-import { enrichPortfolio } from "../src/lib/portfolio";
+import { addBrandColors, enrichPortfolio } from "../src/lib/portfolio";
 
 // Read each portfolio company's own site and store a profile: npm run refresh-portfolio   (or: -- "Giva" "Wint Wealth")
 const db = await loadDB();
+if (process.argv.includes("--colors")) { await addBrandColors(db, (l) => console.log(l)); await saveDB(db); process.exit(0); } // colours only, no model calls
 const only = process.argv.slice(2);
 const out = await enrichPortfolio(db, { only, log: (s) => console.log(s) });
 await saveDB(db);
